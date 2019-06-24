@@ -10,6 +10,7 @@ class Sidemenu extends React.Component {
     }
 
     toggleContent(event) {
+        console.log(event.target.name)
         console.log("Sidemenu: toggling content")
         this.props.toggleContent(event.target.name)
     }
@@ -24,9 +25,9 @@ class Sidemenu extends React.Component {
                         <span></span>
                 </div>
                 <div className="sidebar" style={{display: this.props.visible ? "block" : "none"}}>
-                    <a href="#" name="info" onClick={this.toggleContent}>Basic Information</a>
-                    <a href="#" name="timetable" onClick={this.toggleContent}>TimeLine</a>
-                    <a href="#" name="suggestion" onClick={this.toggleContent}>Suggestions</a>
+                    <button name="info" onClick={this.toggleContent}>Basic Information</button>
+                    <button name="timetable" onClick={this.toggleContent}>TimeLine</button>
+                    <button name="suggestion" onClick={this.toggleContent}>Suggestions</button>
                 </div>
             </div>
         );

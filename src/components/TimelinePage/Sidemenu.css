@@ -15,14 +15,20 @@
     display: none;
 }
 
-.sidebar a {
+.sidebar button {
     padding: 8px 8px 8px 32px;
+    width: 100%;
+    outline:none;
     text-decoration: none;
     font-size: 25px;
     color: #818181;
     display: block;
     transition: 0.3s;
+    text-align: left;
+    border: none;
     border-bottom: 1px solid white;
+    cursor: pointer;
+    background-color: #111;
 }
 
 .togglebtn {

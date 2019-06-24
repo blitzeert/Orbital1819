@@ -1,5 +1,7 @@
 import React from 'react'
-import moment, { isMoment } from 'moment'
+import moment from 'moment'
+import axios from 'axios'
+
 
 import './Sidemenu.css'
 
@@ -14,10 +16,13 @@ class Sidemenu extends React.Component {
             destination: this.props.data.destination,
             validDate: true,
             handleChangeDate: this.props.handleChangeData,
+
+            randomText: ""
         }
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this)
+        this.getWord = this.getWord.bind(this)
     }
 
     handleChange(event) {
@@ -30,8 +35,6 @@ class Sidemenu extends React.Component {
     handleSubmit(event) {
         event.preventDefault();
         
-        var startDt = this.state.startDate;
-        var endDt = this.state.endDate;
         if ((new Date(this.state.startDate).getTime() > new Date(this.state.endDate).getTime())) {
             this.setState({
                 validDate: false
@@ -48,6 +51,16 @@ class Sidemenu extends React.Component {
             });
             console.log("Basic Information: Changing Basic Information")
         }
+    }
+
+
+    getWord() {
+        console.log("inside GetWord")
+        axios.get('http://localhost:5000/example')
+            .then((res) => {
+                console.log(res)
+                this.setState({randomText: res.data[0].password})
+            })
     }
 
     render() {
@@ -108,6 +121,9 @@ class Sidemenu extends React.Component {
                         style={{float:"right"}}
                     />
                 </form>
+
+                <button onClick={this.getWord}> clickME to get words</button>
+                <p>{this.state.randomText}</p>
             </div>
         );
     }

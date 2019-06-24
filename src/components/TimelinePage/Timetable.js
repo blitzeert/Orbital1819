@@ -3,7 +3,7 @@ import React from 'react'
 import Timeline from 'react-calendar-timeline'
 // make sure you include the timeline stylesheet or the timeline will not be styled
 import './Timeline.css'
-import moment from 'moment'
+
 
 
 class Timetable extends React.Component {
@@ -57,14 +57,18 @@ class Timetable extends React.Component {
 	  };
 
 	  componentDidUpdate(prevProps) {
-		if (this.props.data.defaultTimeStart === prevProps.data.defaultTimeStart
-			|| this.props.data.defaultTimeEnd === prevProps.data.defaultTimeEnd) {
-				this.setState(this.props.data)
+		if (this.props.data.defaultTimeStart !== this.state.defaultTimeStart
+			|| this.props.data.defaultTimeEnd !== this.state.defaultTimeEnd) {
+				this.setState({
+					defaultTimeStart: this.props.data.defaultTimeStart,
+					defaultTimeEnd: this.props.data.defaultTimeEnd
+				})
+			} else {
 			}
 	  }
 
 	  changeName = (itemId, newName) => {
-		const { items, groups } = this.state;
+		const { items } = this.state;
 		this.setState({
 		  items: items.map(item =>
 			item.id === itemId
@@ -81,8 +85,7 @@ class Timetable extends React.Component {
 	  // this limits the timeline to -1 days to +1 days
 	  //so they cannot scroll beyond that
 	  onTimeChange = (visibleTimeStart, visibleTimeEnd, updateScrollCanvas) => {
-		//const minTime = moment().add(-1, 'days').valueOf();
-		//const maxTime = moment().add(1, 'days').valueOf();
+
 		const minTime = this.state.defaultTimeStart.startOf("day").valueOf();
 	  	const maxTime = this.state.defaultTimeEnd.endOf("Day").valueOf();
 		if (visibleTimeStart < minTime && visibleTimeEnd > maxTime) {
@@ -105,15 +108,15 @@ class Timetable extends React.Component {
                 <h4><i>{this.props.data.vacationName}</i></h4>
 				<Timeline
 				
-                groups={this.state.groups}
-				items={this.state.items}
+                groups = {groups}
+				items = {items}
 				
-                defaultTimeStart={defaultTimeStart}
-				defaultTimeEnd={defaultTimeEnd}
+                defaultTimeStart = {defaultTimeStart}
+				defaultTimeEnd = {defaultTimeEnd}
 
 
-				visibleTimeStart= {this.state.defaultTimeStart.unix()*1000}
-				VisibleTimeEnd= {this.state.defaultTimeEnd.unix()*1000}
+				visibleTimeStart= {defaultTimeStart.unix()*1000}
+				VisibleTimeEnd= {defaultTimeEnd.unix()*1000}
 				onTimeChange = {this.onTimeChange}
 
 

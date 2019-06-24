@@ -6,7 +6,7 @@ class TempContent extends React.Component {
         return (
             <div>
                 <p>the picture:</p>
-                <img src={bg} alt="Image not Loaded" />
+                <img src={bg} alt="Not Found" />
             </div>
             
         )

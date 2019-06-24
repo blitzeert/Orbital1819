@@ -4,7 +4,7 @@ import {Timeline, TimelineEvent} from 'react-event-timeline'
 import SuggestionData from './temp'
 
 import WriteSuggestion from './MakeSuggestion'
-import data from './temp';
+
 class SuggestionMain extends React.Component {
     constructor(props) {
         super(props);

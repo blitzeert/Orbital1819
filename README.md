@@ -1,3 +1,5 @@
+All Frontend and Backend files are inside their respective folders, everything else not there
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

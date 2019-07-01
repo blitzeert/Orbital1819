@@ -1,8 +1,5 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
-import background from './background.png'
-
 
 import {
   BrowserRouter as Router,

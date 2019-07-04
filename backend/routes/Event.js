@@ -36,7 +36,17 @@ router.get('/reset', (req, res) => {
         })
     })
 })
-
+//to get a random word
+router.get('/example', (req, res) => {
+    axios.get('https://passwordwolf.com/api/?lower=off&numbers=off&special=off&length=7&repeat=1')
+        .then(response => res.send(response.data))
+        .catch(function(error) {
+            console.log('There has been a problem with your fetch operation: ' + error.message);
+             // ADD THIS THROW error
+              throw error;
+        })
+})
+//to initiante a new event
 router.get('/new', (req, res) => {
     console.log("in /new")
     axios.get('http://localhost:5000/event/example')
@@ -119,18 +129,8 @@ db.serialize(function() {
     //     console.log("User id : "+row.id, row.dt);
     // });
     //db.close();
-})    
-
-router.get('/example', (req, res) => {
-    axios.get('https://passwordwolf.com/api/?lower=off&numbers=off&special=off&length=7&repeat=1')
-        .then(response => res.send(response.data))
-        .catch(function(error) {
-            console.log('There has been a problem with your fetch operation: ' + error.message);
-             // ADD THIS THROW error
-              throw error;
-        })
 })
-
+//to get the basic info of an event
 router.get('/basic/:eventId', (req, res) => {
     db.all('SELECT * FROM allEvents WHERE id=?', [req.params.eventId], (err, rows) => {
         if(err) {
@@ -138,10 +138,11 @@ router.get('/basic/:eventId', (req, res) => {
         } else {
             console.log("basicINfo: ",req.params.eventId," : ", rows)
             res.send(rows)
+            console.log("---------------------------------------------")
         }
     })
 })
-
+//to get the items of an event
 router.get('/items/:eventId', (req, res) => {
     
     db.serialize(function() {
@@ -153,7 +154,7 @@ router.get('/items/:eventId', (req, res) => {
                 var temp = rows[0].code + "_ItemInfo"
                 console.log("temp: ", temp)
                 var command = 'SELECT * FROM ' + temp
-                console.log(command)
+                console.log("command: ", command)
                 db.all(command, (err, rows) => {
                     if(err) {
                         console.log(err)
@@ -161,6 +162,7 @@ router.get('/items/:eventId', (req, res) => {
                         console.log("inside /items/eventId")
                         console.log(rows)
                         res.send(rows)
+                        console.log("---------------------------------------------")
                     }
                 })
             }
@@ -168,7 +170,7 @@ router.get('/items/:eventId', (req, res) => {
     })
     
 })
-
+//to get the suggestions of an event
 router.get('/suggestions/:eventId', (req, res) => {
     
     db.serialize(function() {
@@ -180,7 +182,7 @@ router.get('/suggestions/:eventId', (req, res) => {
                 var temp = rows[0].code + "_Suggestion"
                 console.log("temp: ", temp)
                 var command = 'SELECT * FROM ' + temp
-                console.log(command)
+                console.log("command: ", command)
                 db.all(command, (err, rows) => {
                     if(err) {
                         console.log(err)
@@ -188,6 +190,7 @@ router.get('/suggestions/:eventId', (req, res) => {
                         console.log("inside /suggestion/eventId")
                         console.log(rows)
                         res.send(rows)
+                        console.log("---------------------------------------------")
                     }
                 })
             }
@@ -195,7 +198,7 @@ router.get('/suggestions/:eventId', (req, res) => {
     })
     
 })
-
+//to update/modify the basic information
 router.post('/updateBasic/:eventId', (req, res) => {
     console.log("inside updatye basic")
     var command = "UPDATE allEvents SET " +
@@ -205,16 +208,16 @@ router.post('/updateBasic/:eventId', (req, res) => {
          ", endTime = " + req.body.defaultTimeEnd +
          " WHERE id = " + req.params.eventId;
 
-    console.log("command: ")
-    console.log(command)
+    console.log("command: ", command)
     db.run(command, function(err) {
         if(err) {
             console.log("error in posting basic update: " + err.message)
+        } else {
+            console.log("---------------------------------------------")
         }
     })
-    res.send(command)
 });
-
+//to add items to an event
 router.post('/addItem/:eventId', (req, res) => {
     db.serialize(function() {
 
@@ -235,9 +238,10 @@ router.post('/addItem/:eventId', (req, res) => {
                 console.log("command: ", command)
                 db.run(command, function(err) {
                     if(err) {
-                            console.log("error insert new code: " , err)
+                        console.log("error insert new code: " , err)
                     } else {
                         res.send(this.lastID.toString());
+                        console.log("---------------------------------------------")
                     }
                 });
             }
@@ -246,7 +250,7 @@ router.post('/addItem/:eventId', (req, res) => {
 
     })
 });
-
+//to add suggestions to an event
 router.post('/addSuggestion/:eventId', (req, res) => {
     db.serialize(function() {
         db.all('SELECT code FROM allEvents WHERE id=?', [req.params.eventId], (err, rows) => {
@@ -260,24 +264,24 @@ router.post('/addSuggestion/:eventId', (req, res) => {
                 var code = rows[0].code + "_Suggestion"
                 var command = "INSERT INTO " + code + " VALUES(null";
                 for(x in req.body) {
-                        command += ", " + x + " = " + "'" + req.body[x] + "'"
+                        command += ", "+ "'" + req.body[x] + "'"
                 }    
                 command += ")"
 
                 console.log("command: ", command)
                 db.run(command, function(err) {
                     if(err) {
-                            console.log("error adding suggestion: " , err)
+                        console.log("error adding suggestion: " , err)
                     } else {
                         res.send(this.lastID.toString());
+                        console.log("---------------------------------------------")
                     }
                 });
             }
         })
     })
 });
-
-
+//to update/modify an item of an event
 router.post('/updateItem/:eventId/:itemId', (req, res) => {
     db.serialize(function() {
         db.all('SELECT code FROM allEvents WHERE id=?', [req.params.eventId], (err, rows) => {
@@ -304,9 +308,10 @@ router.post('/updateItem/:eventId/:itemId', (req, res) => {
                 console.log("command: ", command)
                 db.run(command, function(err) {
                     if(err) {
-                            console.log("error update Desc: " , err)
+                        console.log("error update Desc: " , err)
                     } else {
                         res.send(this.lastID.toString());
+                        console.log("---------------------------------------------")
                     }
                 });
             }
@@ -315,4 +320,61 @@ router.post('/updateItem/:eventId/:itemId', (req, res) => {
 
     })
 });
+//to delete a suggestion from an event
+router.post('/deleteSuggestion/:eventId', (req, res) => {
+    db.serialize(function() {
+        db.all('SELECT code FROM allEvents WHERE id=?', [req.params.eventId], (err, rows) => {
+            if(err) {
+                console.log("error getting basic: ", err.message)
+            } else {
+                console.log(req.params)
+                console.log("rows: ", rows)
+                console.log(req.body)
+
+                var code = rows[0].code + "_Suggestion"
+                var command = "DELETE FROM " + code + " WHERE";
+                command += " id = " + req.body.sugId;
+
+                console.log("command: ", command)
+                db.run(command, function(err) {
+                    if(err) {
+                        console.log("error update Desc: " , err)
+                    } else {
+                        res.send(this.lastID.toString());
+                        console.log("---------------------------------------------")
+                    }
+                });
+            }
+        })
+    })
+});
+//to delete an item from an event
+router.post('/deleteItem/:eventId', (req, res) => {
+    db.serialize(function() {
+        db.all('SELECT code FROM allEvents WHERE id=?', [req.params.eventId], (err, rows) => {
+            if(err) {
+                console.log("error getting basic: ", err.message)
+            } else {
+                console.log(req.params)
+                console.log("rows: ", rows)
+                console.log(req.body)
+
+                var code = rows[0].code + "_ItemInfo"
+                var command = "DELETE FROM " + code + " WHERE";
+                command += " id = " + req.body.itemId;
+
+                console.log("command: ", command)
+                db.run(command, function(err) {
+                    if(err) {
+                            console.log("error update Desc: " , err)
+                    } else {
+                        res.send(this.lastID.toString());
+                        console.log("---------------------------------------------")
+                    }
+                });
+            }
+        })
+    })
+});
+
 module.exports = router

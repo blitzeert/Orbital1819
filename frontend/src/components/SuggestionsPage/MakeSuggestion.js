@@ -10,7 +10,9 @@ class MakeSuggestion extends React.Component {
             eventId: this.props.eventId,
             title: "",
             text: "",
-            submitHandle: this.props.submitHandle
+            submitHandle: this.props.submitHandle,
+            
+            getContent: this.props.getContent
         }
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -28,13 +30,21 @@ class MakeSuggestion extends React.Component {
             title: this.state.title,
             createdAt: moment().format("YYYY-MM-DD hh:mm a"),
             text: this.state.text
+        }).then((res) => {
+            console.log(res)
+            this.state.getContent();
+            this.setState({
+                title: "",
+                text: "",
+            })
+            return res
         })
 
-        this.props.submitHandle([{
-            title: this.state.title,
-            createdAt: moment().format("YYYY-MM-DD hh:mm a"),
-            text: this.state.text
-        }])
+        // this.props.submitHandle([{
+        //     title: this.state.title,
+        //     createdAt: moment().format("YYYY-MM-DD hh:mm a"),
+        //     text: this.state.text
+        // }])
     }
     
     render() {

@@ -66,6 +66,7 @@ class BasicInformation extends React.Component {
         console.log("Basic Information: Changing Basic Information")
     }
 
+    /*
     componentDidUpdate(prevProps, prevState) {
         if(prevProps.data.vacationName !== this.props.data.vacationName
             || prevProps.data.destination !== this.props.data.destination
@@ -80,7 +81,7 @@ class BasicInformation extends React.Component {
                 })
             }
       }
-
+      */
 
     render() {
         console.log("renndering basic information")

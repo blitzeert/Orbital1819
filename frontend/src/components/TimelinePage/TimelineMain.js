@@ -70,13 +70,13 @@ class TimelineMain extends React.Component {
 		};
 		this.togglesidebar = this.togglesidebar.bind(this);
 		this.handleChangeState = this.handleChangeState.bind(this)
+		this.handleChangeStateNo = this.handleChangeStateNo.bind(this)
 	
 		this.toggleContent = this.toggleContent.bind(this)
 		this.timetableref = React.createRef();		
 	}
 	
-	componentDidMount() {
-		console.log("TimelineMain will mount")
+	getData() {
 		//getting the basic info
 		Axios.get('http://localhost:5000/event/basic/' + this.props.match.params.id)
 			.then((res) => {
@@ -124,6 +124,10 @@ class TimelineMain extends React.Component {
 				}	
 			})
 	}
+	componentDidMount() {
+		console.log("TimelineMain will mount")
+		this.getData();
+	}
 
 	toggleContent(newContent) {
 		this.setState({
@@ -142,6 +146,11 @@ class TimelineMain extends React.Component {
 	//to manage change in data caused by timeline
 	handleChangeState(newState) {
 		this.setState(newState)
+		this.getData();
+	}
+	handleChangeStateNo(newState) {
+		console.log("handleChangeStateNo")
+		this.setState(newState)
 	}
 
     render() {
@@ -153,7 +162,7 @@ class TimelineMain extends React.Component {
 				<Sidemenu togglesidebar={this.togglesidebar} visible={this.state.sidebaropen} toggleContent={this.toggleContent}/>
                 <div  id="maincontent" style={{marginLeft: this.state.sidebaropen ? "230px": "40px", width: "100%"}}>
 					{tempString.localeCompare("timetable") === 0
-						? <Timetable data={this.state} sidebaropen={this.state.sidebaropen} ref={this.timetableref} handleChangeState={this.handleChangeState}/>
+						? <Timetable data={this.state} sidebaropen={this.state.sidebaropen} ref={this.timetableref} handleChangeStateNo ={this.handleChangeStateNo} handleChangeState={this.handleChangeState}/>
 						: tempString.localeCompare("info") === 0
 							? <BasicInformation data={this.state} sidebaropen={this.state.sidebaropen} handleChangeData={this.handleChangeState}/>
 							: <Suggestion eventId={this.state.eventId}/>}

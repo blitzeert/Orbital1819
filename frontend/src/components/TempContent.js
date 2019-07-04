@@ -4,8 +4,10 @@ class TempContent extends React.Component {
     render() {
         return (
             <div>
+
             </div>
-        );
+            
+        )
     }
 }
 

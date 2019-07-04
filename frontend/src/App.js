@@ -22,9 +22,8 @@ function App() {
     <Router>
       <div className="App"> 
         <Header />
-        <Header2 />
           <Switch>
-          <Route exact path="/" component={TempContent} />
+          <Route exact path="/" component={Home} />
           <Route path='/event/:id' component={Timeline} />
           <Route path="/topics" component={Topics} />
           <Route path="/newTimeLine" component={TImelineContainer} />

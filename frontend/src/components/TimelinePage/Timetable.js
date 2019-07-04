@@ -75,7 +75,8 @@ class Timetable extends React.Component {
 		}
 		this.props.handleChangeState(temp2)
 		this.setState({
-			items: temp
+			items: temp,
+			show: false,
 		})
 	}
 	//so that the thing can move
@@ -103,7 +104,7 @@ class Timetable extends React.Component {
 		  };
 
 		
-		this.props.handleChangeState(temp)
+		this.props.handleChangeStateNo(temp)
 		this.setState(temp);
 	
 		console.log("Moved", itemId, dragTime, newGroupOrder);
@@ -127,7 +128,7 @@ class Timetable extends React.Component {
 			: item
 		)
 		};
-	this.props.handleChangeState(temp)
+	this.props.handleChangeStateNo(temp)
 	this.setState(temp);
 		
 	console.log("Resized", itemId, time, edge);
@@ -135,11 +136,12 @@ class Timetable extends React.Component {
 
 	componentDidUpdate(prevProps) {
 	if (this.props.data.defaultTimeStart !== this.state.defaultTimeStart
-		|| this.props.data.defaultTimeEnd !== this.state.defaultTimeEnd) {
+		|| this.props.data.defaultTimeEnd !== this.state.defaultTimeEnd
+		|| this.props.data.items !== this.state.items) {
 			this.setState({
 				defaultTimeStart: this.props.data.defaultTimeStart,
 				defaultTimeEnd: this.props.data.defaultTimeEnd,
-				show: false
+				items: this.props.data.items,
 			})
 		} else {
 		}
@@ -221,16 +223,17 @@ componentDidMount() {
 						/>
 						<hr style={{marginBottom:"10px", marginTop:"10px"}}/>
 						</div>
+						</div>}
 						<hr style={{marginBottom:"10px", marginTop:"10px"}}/>
 						<div>
 							<AddItem handleAdd={this.handleAddItem} defaultTimeStart={this.state.defaultTimeStart} eventId={this.props.data.eventId}/>
 						</div>
 						<hr style={{marginBottom:"10px", marginTop:"10px"}}/>
 						<div style={{position:""}}>
-							{this.state.desc.map((sug) => <ItemDesc key ={sug.id} id={sug.id} title={sug.title} text={sug.text} eventId={this.state.eventId}/>)}
+							{this.props.data.desc.map((sug) => <ItemDesc key ={sug.id} id={sug.id} title={sug.title} text={sug.text} eventId={this.state.eventId} handleChangeState={this.props.handleChangeState}/>)}
 						</div>
 					
-				</div>}
+				
             
 			</div>
         )

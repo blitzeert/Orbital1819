@@ -16,6 +16,7 @@ class ItemDesc extends React.Component {
         this.toggleContent = this.toggleContent.bind(this)
         this.handleChange = this.handleChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
+        this.handleDelete = this.handleDelete.bind(this)
     }
     
     toggleContent() {
@@ -37,11 +38,31 @@ class ItemDesc extends React.Component {
         axios.post('http://localhost:5000/event/updateItem/' + this.state.eventId + "/" + this.state.id, {
             //id: this.state.id,    
             itemDesc: this.state.text
-        }).then()
+        }).then((res) => {
+            this.setState({
+                open: false,
+
+            })
+        })
         .catch((err) => {
-            console.log(err)
+            console.log(err);
+            
         })
     }
+
+    handleDelete() {
+        console.log("deleting")
+        axios.post('http://localhost:5000/event/deleteItem/' + this.state.eventId, {
+            itemId: this.state.id
+        }).then((res) => {
+            this.props.handleChangeState({})
+            return res;
+        }).catch((err) => {
+            console.log(err);
+            
+        })
+    }
+
     render() {
         const style = {
             width:"100%",
@@ -79,6 +100,7 @@ class ItemDesc extends React.Component {
                     placeholder="Write Something" />
                 <br />
                 <input type="submit" value="Save" onClick={this.handleSubmit}/>
+                <button onClick={this.handleDelete}>Delete</button>
             </div>
             </div>
         );

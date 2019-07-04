@@ -38,6 +38,7 @@ class AddItem extends React.Component {
             endTime: moment(this.state.defaultTimeStart, 'X').add(2, "hours").unix(),
             itemDesc: ""
         }
+        
         axios.post('http://localhost:5000/event/addItem/' + this.state.eventId, output1)
             .then((res) => {
                 console.log(res)

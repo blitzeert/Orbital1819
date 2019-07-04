@@ -20,6 +20,8 @@ class SuggestionMain extends React.Component {
             allSuggestion: []
         }
         this.handleSubmit = this.handleSubmit.bind(this)
+        this.toggleDelete = this.toggleDelete.bind(this)
+        this.getContent = this.getContent.bind(this)
     }
     
     handleSubmit(newData) {
@@ -29,9 +31,8 @@ class SuggestionMain extends React.Component {
     }
 
 
-    componentDidMount() {
-
-		Axios.get('http://localhost:5000/event/suggestions/' + this.props.eventId)
+    getContent() {
+        Axios.get('http://localhost:5000/event/suggestions/' + this.props.eventId)
             .then((res) => {
                 console.log("res suggestion: ")
                 console.log(res)
@@ -48,7 +49,16 @@ class SuggestionMain extends React.Component {
                 }
             })
     }
+    componentDidMount() {
+		this.getContent()
+    }
 
+    toggleDelete(event) {
+        console.log("toggle delete")
+        console.log(event.target)
+        Axios.post('http://localhost:5000/event/deleteSuggestion/' + this.props.eventId, {sugId: event.target.id})
+            .then(this.getContent())
+    }
     render() {
         console.log("suggestion:", this.props)
         console.log(this.state.allSuggestion)
@@ -60,9 +70,11 @@ class SuggestionMain extends React.Component {
                 {this.state.allSuggestion.map((data) => {
                     return (
                         <TimelineEvent
+                            id={data.id}
+                            key = {data.id}
                             title={data.title}
                             createdAt={data.createdAt}
-                            icon={<i className="material-icons md-18">NEED_ICON</i>}>
+                            icon={<i className="material-icons md-18" onClick={this.toggleDelete} id={data.id}>NEED_DELETE_ICON</i>}>
                             {data.text}
                         </TimelineEvent>
                     );
@@ -70,7 +82,7 @@ class SuggestionMain extends React.Component {
         </Timeline>
         <hr />
         
-        <WriteSuggestion submitHandle={this.handleSubmit} eventId={this.props.eventId}/>
+        <WriteSuggestion submitHandle={this.handleSubmit} eventId={this.props.eventId} getContent={this.getContent}/>
         </div>
         );
     }

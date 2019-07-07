@@ -1,6 +1,6 @@
 import React from 'react'
 import axios from 'axios'
-//import style from 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css';
+import downarrow from './downarrow.png'
 
 class ItemDesc extends React.Component {
     constructor(props) {
@@ -8,12 +8,15 @@ class ItemDesc extends React.Component {
 
         this.state = {
             open: false,
+            rename: false,
             eventId: this.props.eventId,
             id: this.props.id,
             title: this.props.title,
             text: this.props.text,
         }
         this.toggleContent = this.toggleContent.bind(this)
+        this.toggleRename = this.toggleRename.bind(this)
+
         this.handleChange = this.handleChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.handleDelete = this.handleDelete.bind(this)
@@ -23,10 +26,19 @@ class ItemDesc extends React.Component {
         this.setState({
             open: !this.state.open
         })
-        console.log("toglkni")
+        console.log("showing item Desc")
+    }
+
+    toggleRename() {
+        this.setState({
+            rename: !this.state.rename
+        })
+        console.log("toggling rename")
     }
 
     handleChange(event) {
+        
+        
         const {name, value} = event.target
         this.setState({ //the [] is to declare the string as a object variable(?)
             [name]: value
@@ -52,10 +64,10 @@ class ItemDesc extends React.Component {
 
     handleDelete() {
         console.log("deleting")
-        axios.post('http://localhost:5000/event/deleteItem/' + this.state.eventId, {
-            itemId: this.state.id
+        axios.post('http://localhost:5000/event/deleteItem/' + this.props.eventId, {
+            itemId: this.props.id
         }).then((res) => {
-            this.props.handleChangeState({})
+            this.props.handleDeleteItem(this.props.id)
             return res;
         }).catch((err) => {
             console.log(err);
@@ -74,26 +86,39 @@ class ItemDesc extends React.Component {
     
         return (
             <div style={style}>
-                <div onClick={this.toggleContent} style={{cursor:"pointer"}}>
-                <span>
-                <i style={{float:"left"}}>{this.state.title}</i>
-                <i style={{fontSize:"100", float:"right"}} className="fa fa-caret-down"></i>
-                </span>
+                <span style={{height:"30px"}}>
+                
+                <div>
+                    <i style={{float:"left"}}>{this.state.title}</i>
+                    <div style={{display: this.state.open ? "block" : "none" , textAlign:"left", margin:"5px", height:"30px", float:"left"}}>
+                        <button onClick={this.toggleRename}>Rename</button>
+                    </div>
                 </div>
+                    
+                <div>
+                    <input type="text" name="title" value={this.props.title} />
+                    <div style={{display: this.state.open ? "block" : "none" , textAlign:"left", margin:"5px", height:"30px", float:"left"}}>
+                        <button onClick={this.toggleRename}>Rename</button>
+                    </div>
+                </div>
+                
+                
+                <img src={downarrow} height="30" style={{float:"right", cursor:"pointer"}}  onClick={this.toggleContent}/>
+                </span>
                 <hr style={{display: this.state.open ? "block" : "none" , width:"100%", float:"center", marginTop:"5px", marginBottom:"5px"}}/>
                 <div style={{display: this.state.open ? "block" : "none" , textAlign:"left", margin:"5px"}}>
                     <span>Google Places Desc</span>
                     <br />
                     <span>Google Map Thing</span>
                     <br />
-                    <span>Other THings</span>
+                    <span>Other Things</span>
                     <br />
                     <span>Notes: </span>
                     <br />
                 <textarea
                     style={{resize:"none"}}
                     rows="4"
-                    cols="100"
+                    cols="60"
                     onChange={this.handleChange}
                     name= "text"
                     value={this.state.text}

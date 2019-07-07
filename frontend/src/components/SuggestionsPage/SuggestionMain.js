@@ -1,7 +1,6 @@
 import React from 'react'
 import {Timeline, TimelineEvent} from 'react-event-timeline'
 import Axios from 'axios'
-import SuggestionData from './temp'
 
 import WriteSuggestion from './MakeSuggestion'
 

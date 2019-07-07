@@ -3,7 +3,7 @@ import './App.css';
 
 import {
   BrowserRouter as Router,
-  StaticRouter, // for server rendering
+  //StaticRouter, // for server rendering
   Route,
   Link,
   Switch,
@@ -12,7 +12,6 @@ import {
 } from 'react-router-dom';
 
 import Header from './components/Header'
-import TempContent from './components/TempContent'
 import Timeline from './components/TimelinePage/TimelineMain'
 import TImelineContainer from './components/TimelineContainer'
 
@@ -26,6 +25,8 @@ function App() {
           <Route exact path="/" component={Home} />
           <Route path='/event/:id' component={Timeline} />
           <Route path="/topics" component={Topics} />
+          <Route path="/about" component={About} />
+          <Route path="/header2" component={Header2} />
           <Route path="/newTimeLine" component={TImelineContainer} />
           <Route component={NotFound} />
           </Switch>
@@ -45,7 +46,6 @@ function App() {
       </div>
 */
 const NotFound = () => (  <h1>404.. This page is not found!</h1>)
-const Container = (props) => <div>  <Header />  {props.children}</div>
 
 export default App;
 function Home() {

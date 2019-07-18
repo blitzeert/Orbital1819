@@ -2,11 +2,11 @@ import React from 'react'
 
 
 import {
-    BrowserRouter as Router,
-    StaticRouter, // for server rendering
-    Route,
+    //BrowserRouter as Router,
+    //StaticRouter, // for server rendering
+    //Route,
     Link,
-    Switch,
+    //Switch,
     //hashHistory
     // etc.
   } from 'react-router-dom';

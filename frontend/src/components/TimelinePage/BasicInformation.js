@@ -12,50 +12,48 @@ class BasicInformation extends React.Component {
         this.state = {
             eventId: this.props.data.eventId,
             
-            vacationName: this.props.data.vacationName,
-            destination: this.props.data.destination,
-            startDate: this.props.data.defaultTimeStart.format("YYYY-MM-DD"),
-            endDate: this.props.data.defaultTimeEnd.format("YYYY-MM-DD"),
+            //vacationName: this.props.data.vacationName,
+            //destination: this.props.data.destination,
+            //startDate: this.props.data.defaultTimeStart.format("YYYY-MM-DD"),
+            //endDate: this.props.data.defaultTimeEnd.format("YYYY-MM-DD"),
             
             validDate: true,
-            handleChangeDate: this.props.handleChangeData,
+            //handleChangeDate: this.props.handleChangeData,
         }
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleChangeDate = this.handleChangeDate.bind(this);
+    }
+
+
+    handleChangeDate(event) {
+        const {name, value} = event.target
+        this.props.handleChange(name, moment(value, 'YYYY-MM-DD'))
     }
 
     handleChange(event) {
         const {name, value} = event.target
-        this.setState({ //the [] is to declare the string as a object variable(?)
-            [name]: value
-        })
+        this.props.handleChange(name, value)
     }
 
     handleSubmit(event) {
-        event.preventDefault();
         
-        if ((new Date(this.state.startDate).getTime() > new Date(this.state.endDate).getTime())) {
+        if ((new Date(this.props.data.defaultTimeStart).getTime() > new Date(this.props.data.defaultTimeEnd).getTime())) {
             this.setState({
                 validDate: false
             });
         } else {
-            this.setState({
-                validDate: true
-            });
+            console.log("Basic Information: Changing Basic Information")
             console.log("eventId: " + this.state.eventId)
             axios.post('http://localhost:5000/event/updateBasic/' + this.state.eventId, {
-                    vacationName: this.state.vacationName,
-                    defaultTimeStart:  moment(this.state.startDate).startOf("day").unix(),
-                    defaultTimeEnd: moment(this.state.endDate).endOf("day").unix(),
-                    destination: this.state.destination
+                    vacationName: this.props.data.vacationName,
+                    defaultTimeStart:  moment(this.props.data.defaultTimeStart).startOf("day").unix(),
+                    defaultTimeEnd: moment(this.props.data.defaultTimeEnd).endOf("day").unix(),
+                    destination: this.props.data.destination
             }).then(
-                
-                this.state.handleChangeDate({
-                    name: this.state.vacationName,
-                    destination: this.state.destination,
-                    startTime:  moment(this.state.startDate).startOf("day").format("YYYY-MM-DD"),
-                    endTime: moment(this.state.endDate).endOf("Day").format("YYYY-MM-DD")
+                this.setState({
+                    validDate: true
                 })
             ).catch((err) => {
                 if(err) {
@@ -63,29 +61,12 @@ class BasicInformation extends React.Component {
                 }
             })
         }
-        console.log("Basic Information: Changing Basic Information")
+        event.preventDefault();
+        
     }
 
-    /*
-    componentDidUpdate(prevProps, prevState) {
-        if(prevProps.data.vacationName !== this.props.data.vacationName
-            || prevProps.data.destination !== this.props.data.destination
-            || prevProps.data.defaultTimeStart !== this.props.data.defaultTimeStart
-            || prevProps.data.defaultTimeEnd !== this.props.data.defaultTimeEnd) {
-                console.log("inside component did update basic information")
-                this.setState({
-                    vacationName: this.props.data.vacationName,
-                    destination: this.props.data.destination,
-                    startDate: this.props.data.defaultTimeStart.format("YYYY-MM-DD"),
-                    endDate: this.props.data.defaultTimeEnd.format("YYYY-MM-DD"),
-                })
-            }
-      }
-      */
-
     render() {
-        console.log("renndering basic information")
-        console.log(this.state)
+        console.log("renndering basic information", this.props.data)
         return (
             <div style={{width:"300px", height:"", margin:"10px", paddingBottom:"30px",paddingRight:"5px", border:"1px solid black", float:"container"}}>
                 The Trip
@@ -94,7 +75,7 @@ class BasicInformation extends React.Component {
                     Trip Name:
                     <input 
                         type="text" 
-                        value={this.state.vacationName} 
+                        value={this.props.data.vacationName} 
                         name="vacationName" 
                         onChange={this.handleChange} 
                         autoComplete="off"
@@ -106,7 +87,7 @@ class BasicInformation extends React.Component {
                     Destination:
                     <input 
                         type="text" 
-                        value={this.state.destination}
+                        value={this.props.data.destination}
                         name="destination" 
                         onChange={this.handleChange}
                         style={{margin:"5px"}}
@@ -117,9 +98,9 @@ class BasicInformation extends React.Component {
                     Starting Date:
                     <input 
                         type="date" 
-                        value={moment(this.state.startDate).format("YYYY-MM-DD")}
-                        name="startDate" 
-                        onChange={this.handleChange}
+                        value={moment(this.props.data.defaultTimeStart).format("YYYY-MM-DD")}
+                        name="defaultTimeStart" 
+                        onChange={this.handleChangeDate}
                         style={{margin:"5px"}}
                     />
                     </div>
@@ -128,9 +109,9 @@ class BasicInformation extends React.Component {
                     Ending Date:
                     <input 
                         type="date" 
-                        value={moment(this.state.endDate).format("YYYY-MM-DD")}
-                        name="endDate" 
-                        onChange={this.handleChange}
+                        value={moment(this.props.data.defaultTimeEnd).format("YYYY-MM-DD")}
+                        name="defaultTimeEnd" 
+                        onChange={this.handleChangeDate}
                         style={{margin:"5px"}}
                     />
                     </div>

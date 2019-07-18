@@ -51,44 +51,49 @@ class Timetable extends React.Component {
     constructor(props) {
     	super(props);
 
-		this.state = this.props.data
-		this.state.show = false;
-
-		this.handleAddItem = this.handleAddItem.bind(this)
+		this.state = {
+			show: false
+		}
+		
+		this.handleAddItem = this.handleAddItem.bind(this);
+		this.handleDeleteItem = this.handleDeleteItem.bind(this)
 		this.pending = this.pending.bind(this)
 	}
 
 	handleAddItem(newItem) {
-		console.log(this.state.defaultTimeStart)	
-		console.log(this.state.items)
+		console.log(this.props.data.defaultTimeStart)	
+		console.log(this.props.data.items)
 		console.log("Adding item")
 
-		var temp = [].concat(this.state.items)
-		console.log("this is temp" ,temp)
+		var temp = [].concat(this.props.data.items)
 		temp.push(
 			newItem
 		)
-		
-		console.log("this is temp 2" ,temp)
-		var temp2 = {
-			items: temp
-		}
-		this.props.handleChangeState(temp2)
+		console.log("this is temp" ,temp)
+		this.props.handleChange("items", temp)
+
+		var tempDesc = [].concat(this.props.data.desc)
+		tempDesc.push({
+			id: newItem.id,
+			title: newItem.title,
+			text: ""
+		})
+		console.log("this is tempDesc" ,tempDesc)
+		this.props.handleChange("desc", tempDesc)
+
 		this.setState({
-			items: temp,
 			show: false,
 		})
 	}
 	//so that the thing can move
 	handleItemMove = (itemId, dragTime, newGroupOrder) => {
-		const { items, groups } = this.state;
+		const { items, groups } = this.props.data;
 	
 		const group = groups[newGroupOrder];
 	
-		var temp = {
-			items: items.map(item =>
+		var temp = items.map(item =>
 			  item.id === itemId
-				? (axios.post('http://localhost:5000/event/updateItem/' + this.state.eventId + "/" + itemId, {
+				? (axios.post('http://localhost:5000/event/updateItem/' + this.props.data.eventId + "/" + itemId, {
 					startTime: moment(dragTime, 'x').unix(),
 					endTime: moment(dragTime + (item.end_time - item.start_time), 'x').unix(),
 					}).then()
@@ -100,22 +105,19 @@ class Timetable extends React.Component {
 					group: group.id
 				}))
 				: item
-			)
-		  };
+			);
 
 		
-		this.props.handleChangeStateNo(temp)
-		this.setState(temp);
-	
+		this.props.handleChange("items", temp)
+
 		console.log("Moved", itemId, dragTime, newGroupOrder);
 	};
 	//to resize an item
 	handleItemResize = (itemId, time, edge) => {
-	const { items } = this.state;
-	var temp = {
-		items: items.map(item =>
+	const { items } = this.props.data;
+	var temp = items.map(item =>
 			item.id === itemId
-			? (axios.post('http://localhost:5000/event/updateItem/' + this.state.eventId + "/" + itemId, {
+			? (axios.post('http://localhost:5000/event/updateItem/' + this.props.data.eventId + "/" + itemId, {
 				startTime: moment(edge === "left" ? time : item.start_time, 'x').unix(),
 				endTime: moment(edge === "left" ? item.end_time : time, 'x').unix(),
 				}).then()
@@ -126,27 +128,29 @@ class Timetable extends React.Component {
 				end_time: edge === "left" ? item.end_time : time
 				}))
 			: item
-		)
-		};
-	this.props.handleChangeStateNo(temp)
-	this.setState(temp);
-		
+		);
+
+	this.props.handleChange("items", temp)
+	
 	console.log("Resized", itemId, time, edge);
 	};
 
-	componentDidUpdate(prevProps) {
-	if (this.props.data.defaultTimeStart !== this.state.defaultTimeStart
-		|| this.props.data.defaultTimeEnd !== this.state.defaultTimeEnd
-		|| this.props.data.items !== this.state.items) {
-			this.setState({
-				defaultTimeStart: this.props.data.defaultTimeStart,
-				defaultTimeEnd: this.props.data.defaultTimeEnd,
-				items: this.props.data.items,
-			})
-		} else {
-		}
-	}
+	handleDeleteItem(itemId) {
+		console.log("Deleting item: ", itemId)
 
+		var temp = [].concat(this.props.data.items)
+		temp = temp.filter((x) => x.id !== itemId)		
+		this.props.handleChange("items", temp)
+		var tempDesc = [].concat(this.props.data.desc)
+		tempDesc = tempDesc.filter((x) => x.id !== itemId)
+		console.log("new tempDesc after filter: ", tempDesc)
+		this.props.handleChange("desc", tempDesc)
+
+		
+		// this.setState({
+		// 	show: false,
+		// })
+	}
 	changeName = (itemId, newName) => {
 	const { items } = this.state;
 	this.setState({
@@ -164,8 +168,8 @@ class Timetable extends React.Component {
 	//so they cannot scroll beyond that
 	onTimeChange = (visibleTimeStart, visibleTimeEnd, updateScrollCanvas) => {
 
-	const minTime = this.state.defaultTimeStart.startOf("day").valueOf();
-	const maxTime = this.state.defaultTimeEnd.endOf("Day").valueOf();
+	const minTime = this.props.data.defaultTimeStart.startOf("day").valueOf();
+	const maxTime = this.props.data.defaultTimeEnd.endOf("Day").valueOf();
 	if (visibleTimeStart < minTime && visibleTimeEnd > maxTime) {
 		updateScrollCanvas(minTime, maxTime)
 	} else if (visibleTimeStart < minTime) {
@@ -183,15 +187,13 @@ class Timetable extends React.Component {
 		}.bind(this), 1000)
 		return <h1>loading</h1>
 	}
-componentDidMount() {
-	//{console.log(this.temptimetable.clientHeight)}
-	//this.setState({tempheight: this.temptimetable.clientHeight})
-}
+
     render() {
-		console.log("Timetable: rendering timetbale")
-		const { groups, items, defaultTimeStart, defaultTimeEnd } = this.state;
-		console.log(this.state.items)
+		console.log("Timetable: rendering timetable", this.props.data)
+		const { groups, items, defaultTimeStart, defaultTimeEnd } = this.props.data;
+		console.log(this.props.data.items)
 		console.log({items})
+		console.log(this.props.data.desc)
         return (
 			<div>
 				{!this.state.show
@@ -222,19 +224,16 @@ componentDidMount() {
 						onItemResize={this.handleItemResize}
 						/>
 						<hr style={{marginBottom:"10px", marginTop:"10px"}}/>
-						</div>
-						</div>}
-						<hr style={{marginBottom:"10px", marginTop:"10px"}}/>
-						<div>
-							<AddItem handleAdd={this.handleAddItem} defaultTimeStart={this.state.defaultTimeStart} eventId={this.props.data.eventId}/>
-						</div>
-						<hr style={{marginBottom:"10px", marginTop:"10px"}}/>
-						<div style={{position:""}}>
-							{this.props.data.desc.map((sug) => <ItemDesc key ={sug.id} id={sug.id} title={sug.title} text={sug.text} eventId={this.state.eventId} handleChangeState={this.props.handleChangeState}/>)}
-						</div>
-					
-				
-            
+					</div>
+				</div>}
+				<hr style={{marginBottom:"10px", marginTop:"10px"}}/>
+				<div>
+					<AddItem handleAdd={this.handleAddItem} defaultTimeStart={this.props.data.defaultTimeStart} eventId={this.props.data.eventId}/>
+				</div>
+				<hr style={{marginBottom:"10px", marginTop:"10px"}}/>
+				<div style={{position:""}}>
+					{this.props.data.desc.map((sug) => <ItemDesc key ={sug.id} id={sug.id} title={sug.title} text={sug.text} eventId={this.props.data.eventId} handleDeleteItem={this.handleDeleteItem} />)}
+				</div>
 			</div>
         )
     }

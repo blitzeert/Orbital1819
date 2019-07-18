@@ -46,10 +46,11 @@ class AddItem extends React.Component {
                     id: res.data,
                     group: 1,
                     title: this.state.name,
-                    startTime: moment(this.state.defaultTimeStart, 'X'),
-                    endTime: moment(this.state.defaultTimeStart, 'X').add(2, "hours"),
+                    start_time: moment(this.state.defaultTimeStart, 'X'),
+                    end_time: moment(this.state.defaultTimeStart, 'X').add(2, "hours"),
                     itemDesc: ""
                 }
+                console.log("new item: ", output2)
                 this.props.handleAdd(output2)
                 return res
             })

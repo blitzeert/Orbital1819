@@ -57,7 +57,7 @@ router.get('/new', (req, res) => {
         .then((response) => {
             db.serialize(function() {
                 //adding the code to the main table
-                db.run("INSERT INTO allEvents VALUES(null, ?, null, null, null, null)", [response], function(err) {
+                db.run("INSERT INTO allEvents VALUES(null, ?, '', '', '', '')", [response], function(err) {
                     if(err) {
                             console.log("error insert new code: " , err)
                     } else {
@@ -200,12 +200,12 @@ router.get('/suggestions/:eventId', (req, res) => {
 })
 //to update/modify the basic information
 router.post('/updateBasic/:eventId', (req, res) => {
-    console.log("inside updatye basic")
+    console.log("inside update basic")
     var command = "UPDATE allEvents SET " +
          "name = " + "'" + req.body.vacationName + "'" +
          ", destination = " + "'" + req.body.destination + "'" + 
-         ", startTime = " + req.body.defaultTimeStart + 
-         ", endTime = " + req.body.defaultTimeEnd +
+         ", startTime = " + "'" + req.body.defaultTimeStart + "'" +
+         ", endTime = " + "'" + req.body.defaultTimeEnd + "'" +
          " WHERE id = " + req.params.eventId;
 
     console.log("command: ", command)

@@ -44,7 +44,7 @@ vacationName: "",
 			sidebaropen: true,
 			
 			content: "info"
-			desc
+			desc:[],
 */
 
 class Timetable extends React.Component {
@@ -57,6 +57,7 @@ class Timetable extends React.Component {
 		
 		this.handleAddItem = this.handleAddItem.bind(this);
 		this.handleDeleteItem = this.handleDeleteItem.bind(this)
+		this.handleDescChange = this.handleDescChange.bind(this)
 		this.pending = this.pending.bind(this)
 	}
 
@@ -72,14 +73,14 @@ class Timetable extends React.Component {
 		console.log("this is temp" ,temp)
 		this.props.handleChange("items", temp)
 
-		var tempDesc = [].concat(this.props.data.desc)
-		tempDesc.push({
-			id: newItem.id,
-			title: newItem.title,
-			text: ""
-		})
-		console.log("this is tempDesc" ,tempDesc)
-		this.props.handleChange("desc", tempDesc)
+		// var tempDesc = [].concat(this.props.data.desc)
+		// tempDesc.push({
+		// 	id: newItem.id,
+		// 	title: newItem.title,
+		// 	text: ""
+		// })
+		// console.log("this is tempDesc" ,tempDesc)
+		// this.props.handleChange("desc", tempDesc)
 
 		this.setState({
 			show: false,
@@ -114,27 +115,27 @@ class Timetable extends React.Component {
 	};
 	//to resize an item
 	handleItemResize = (itemId, time, edge) => {
-	const { items } = this.props.data;
-	var temp = items.map(item =>
-			item.id === itemId
-			? (axios.post('http://localhost:5000/event/updateItem/' + this.props.data.eventId + "/" + itemId, {
-				startTime: moment(edge === "left" ? time : item.start_time, 'x').unix(),
-				endTime: moment(edge === "left" ? item.end_time : time, 'x').unix(),
-				}).then()
-				.catch((err) => {
-					console.log(err)
-			}),Object.assign({}, item, {
-				start_time: edge === "left" ? time : item.start_time,
-				end_time: edge === "left" ? item.end_time : time
-				}))
-			: item
-		);
+		const { items } = this.props.data;
+		var temp = items.map(item =>
+				item.id === itemId
+				? (axios.post('http://localhost:5000/event/updateItem/' + this.props.data.eventId + "/" + itemId, {
+					startTime: moment(edge === "left" ? time : item.start_time, 'x').unix(),
+					endTime: moment(edge === "left" ? item.end_time : time, 'x').unix(),
+					}).then()
+					.catch((err) => {
+						console.log(err)
+				}),Object.assign({}, item, {
+					start_time: edge === "left" ? time : item.start_time,
+					end_time: edge === "left" ? item.end_time : time
+					}))
+				: item
+			);
 
-	this.props.handleChange("items", temp)
-	
-	console.log("Resized", itemId, time, edge);
+		this.props.handleChange("items", temp)
+		
+		console.log("Resized", itemId, time, edge);
 	};
-
+	//to delete an item
 	handleDeleteItem(itemId) {
 		console.log("Deleting item: ", itemId)
 
@@ -151,17 +152,23 @@ class Timetable extends React.Component {
 		// 	show: false,
 		// })
 	}
-	changeName = (itemId, newName) => {
-	const { items } = this.state;
-	this.setState({
-		items: items.map(item =>
-		item.id === itemId
-			? Object.assign({}, item, {
-				title: newName
-			})
+	//to rename an item
+	handleDescChange(itemId, name, newData) {
+		const { items } = this.props.data;
+		var temp = items.map(item =>
+			item.id === itemId
+			? (axios.post('http://localhost:5000/event/updateItem/' + this.props.data.eventId + "/" + itemId, {
+				[name]: newData
+				}).then()
+				.catch((err) => {
+					console.log(err)
+			}),Object.assign({}, item, {
+				[name]: newData
+				}))
 			: item
-		)
-	});
+		);
+		this.props.handleChange("items", temp)
+		console.log("renamed item: ", itemId, " to ", name, ": ", newData)
 	}
 
 	// this limits the timeline to -1 days to +1 days
@@ -232,7 +239,7 @@ class Timetable extends React.Component {
 				</div>
 				<hr style={{marginBottom:"10px", marginTop:"10px"}}/>
 				<div style={{position:""}}>
-					{this.props.data.desc.map((sug) => <ItemDesc key ={sug.id} id={sug.id} title={sug.title} text={sug.text} eventId={this.props.data.eventId} handleDeleteItem={this.handleDeleteItem} />)}
+					{this.props.data.items.map((sug) => <ItemDesc key ={sug.id} id={sug.id} title={sug.title} text={sug.itemDesc} eventId={this.props.data.eventId} handleDeleteItem={this.handleDeleteItem} handleChange={this.handleDescChange}/>)}
 				</div>
 			</div>
         )

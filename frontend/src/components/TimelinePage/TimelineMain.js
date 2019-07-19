@@ -62,6 +62,8 @@ class TimelineMain extends React.Component {
 			defaultTimeStart: moment(),
 			defaultTimeEnd: moment(),
 			
+			desc:[],
+			
 			suggestion:[],
 
 			sidebaropen: true,
@@ -97,7 +99,6 @@ class TimelineMain extends React.Component {
 					console.log("items is null")
 					this.setState({
 						items: [],
-						desc:[],
 					})
 				} else {
 					console.log("items not null")
@@ -109,14 +110,8 @@ class TimelineMain extends React.Component {
 				  				group: 1,
 				  				title: itemObj.title,
 				  				start_time: moment(itemObj.startTime, 'X'),
-				  				end_time: moment(itemObj.endTime, 'X'),
-							}
-						}),
-						desc: res.data.map((itemObj) => {
-							return {
-								id: itemObj.id,
-				  				title: itemObj.title,
-								text: itemObj.itemDesc
+								end_time: moment(itemObj.endTime, 'X'),
+								itemDesc: itemObj.itemDesc
 							}
 						})
 					}, () => console.log("State item:", this.state))

@@ -1,7 +1,7 @@
 import React from 'react'
 import axios from 'axios'
 import downarrow from './downarrow.png'
-
+//handleDescChange
 class ItemDesc extends React.Component {
     constructor(props) {
         super(props);
@@ -16,6 +16,7 @@ class ItemDesc extends React.Component {
         }
         this.toggleContent = this.toggleContent.bind(this)
         this.toggleRename = this.toggleRename.bind(this)
+        this.saveRename = this.saveRename.bind(this)
 
         this.handleChange = this.handleChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
@@ -37,29 +38,26 @@ class ItemDesc extends React.Component {
     }
 
     handleChange(event) {
-        
-        
         const {name, value} = event.target
-        this.setState({ //the [] is to declare the string as a object variable(?)
-            [name]: value
-        })
+        console.log("changing: ", name, ", " , value)
+        this.props.handleChange(this.props.id, name, value)
     }
 
     handleSubmit(event) {
+        console.log(event.target)
         event.preventDefault()
         axios.post('http://localhost:5000/event/updateItem/' + this.state.eventId + "/" + this.state.id, {
-            //id: this.state.id,    
-            itemDesc: this.state.text
+            //id: this.state.id,
+            title: this.props.title,
+            itemDesc: this.props.text
         }).then((res) => {
-            this.setState({
-                open: false,
-
-            })
+            return res
         })
         .catch((err) => {
             console.log(err);
             
         })
+
     }
 
     handleDelete() {
@@ -75,6 +73,10 @@ class ItemDesc extends React.Component {
         })
     }
 
+    saveRename(event) {
+        this.toggleRename();
+        this.handleSubmit(event);
+    }
     render() {
         const style = {
             width:"100%",
@@ -83,26 +85,29 @@ class ItemDesc extends React.Component {
             marginBottom:"5px",
             transition: "0.3s"
         }
-    
+        console.log("itemDesc: ", this.props)
         return (
             <div style={style}>
                 <span style={{height:"30px"}}>
                 
-                <div>
-                    <i style={{float:"left"}}>{this.state.title}</i>
-                    <div style={{display: this.state.open ? "block" : "none" , textAlign:"left", margin:"5px", height:"30px", float:"left"}}>
-                        <button onClick={this.toggleRename}>Rename</button>
-                    </div>
+                <div style={{float:"left"}}>
+                    {!this.state.open
+                        ? <b>{this.props.title}</b>
+                        : this.state.rename
+                            ? <div>
+                                <input type="text" name="title" value={this.props.title} style={{float:"left"}} onChange={this.handleChange}/>
+                                <div style={{display: this.state.open ? "block" : "none" , textAlign:"left", margin:"5px", height:"30px", float:"left"}}>
+                                    <button onClick={this.saveRename}>Save</button>
+                                </div>
+                              </div>
+                            : <div>
+                                <i style={{float:"left"}}>{this.props.title}</i>
+                                <div style={{display: this.state.open ? "block" : "none" , textAlign:"left", margin:"5px", height:"30px", float:"left"}}>
+                                <button onClick={this.toggleRename}>Rename</button>
+                                </div>
+                              </div>}
                 </div>
-                    
-                <div>
-                    <input type="text" name="title" value={this.props.title} />
-                    <div style={{display: this.state.open ? "block" : "none" , textAlign:"left", margin:"5px", height:"30px", float:"left"}}>
-                        <button onClick={this.toggleRename}>Rename</button>
-                    </div>
-                </div>
-                
-                
+
                 <img src={downarrow} height="30" style={{float:"right", cursor:"pointer"}}  onClick={this.toggleContent}/>
                 </span>
                 <hr style={{display: this.state.open ? "block" : "none" , width:"100%", float:"center", marginTop:"5px", marginBottom:"5px"}}/>
@@ -120,8 +125,8 @@ class ItemDesc extends React.Component {
                     rows="4"
                     cols="60"
                     onChange={this.handleChange}
-                    name= "text"
-                    value={this.state.text}
+                    name= "itemDesc"
+                    value={this.props.text}
                     placeholder="Write Something" />
                 <br />
                 <input type="submit" value="Save" onClick={this.handleSubmit}/>

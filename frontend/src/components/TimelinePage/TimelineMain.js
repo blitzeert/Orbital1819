@@ -1,5 +1,6 @@
 import React from 'react'
 import moment from 'moment'
+import {Redirect} from 'react-router-dom'
 
 import Timetable from './Timetable'
 import Sidemenu from './Sidemenu'
@@ -53,6 +54,8 @@ class TimelineMain extends React.Component {
         super(props);
 		
 		this.state = {
+			deleted: false,
+
 			eventId: this.props.match.params.id,
 			
 			vacationName: "",
@@ -72,6 +75,7 @@ class TimelineMain extends React.Component {
 		};
 		this.togglesidebar = this.togglesidebar.bind(this);
 		this.handleChange = this.handleChange.bind(this)
+		this.handleDelete = this.handleDelete.bind(this)
 
 		this.toggleContent = this.toggleContent.bind(this)
 		this.timetableref = React.createRef();		
@@ -88,6 +92,7 @@ class TimelineMain extends React.Component {
 					destination: res.data[0].destination,
 					defaultTimeStart: moment(res.data[0].startTime, "X").startOf("day"),
 					defaultTimeEnd: moment(res.data[0].endTime, "X").endOf("day"),
+					description: res.data[0].description
 				}, () => console.log("State:", this.state))
 			})
 		//getting items
@@ -104,7 +109,7 @@ class TimelineMain extends React.Component {
 					console.log("items not null")
 					this.setState({
 						items: res.data.map((itemObj) => {
-							console.log("insied map")
+							console.log("inside map")
 							return {
 								id: itemObj.id,
 				  				group: 1,
@@ -143,23 +148,79 @@ class TimelineMain extends React.Component {
 		})
 	}
 	
+	handleDelete(event) {
+		//confirm delete
+		event.preventDefault()
+		const empt = ""
+		if (empt.localeCompare(this.props.username) === 0) { // no username aka no login
+			
+		} else {
+			console.log("deleting")
+		
+		Axios.get('http://localhost:5000/event/users')
+			.then((response) => {
+				return response.data
+			}).then((response) => {
+				var output = response.filter((user) => {
+					var temp = user.username;
+					console.log("before locale compare:", this.props.username)
+					return (temp.localeCompare(this.props.username) === 0)
+				})
+				return output
+			}).then((response) => {
+				console.log("Res[0]:", response[0])
+				var userId = response[0].id;
+				var events = response[0].events.split(" ")
+				events = events.filter((x) => x.localeCompare(this.state.eventId) !== 0)
+				var len = events.length
+				var output = ""
+				for(var i = 0; i < len; i++) {
+					output += " " + events[i];
+				}
+				output = output.trim()
+				const post = {
+					id: userId,
+					events: output
+				}
+				Axios.post('http://localhost:5000/event/modifyusers', post)
+					.then((responseNotUsed) => {
+						Axios.post('http://localhost:5000/event/deleteEvent/' + this.state.eventId)
+							.then((res) => {
+								this.setState({
+									deleted: true
+								})
+							})
+					})
+
+			})
+		}
+	}
+	
     render() {
 		var tempString = this.state.content;
 		console.log("timelineMainCOde: ", this.props.match.params.id)
+		console.log("props:", this.props)
 		console.log(this.state)
-		return (
-            <div style={{width: this.state.sidebaropen ? "calc(100% - 240px)" : "calc(100% - 50px)", top: "100px"}}>
-				<Sidemenu togglesidebar={this.togglesidebar} visible={this.state.sidebaropen} toggleContent={this.toggleContent}/>
-                <div  id="maincontent" style={{marginLeft: this.state.sidebaropen ? "230px": "40px", width: "100%"}}>
-					{tempString.localeCompare("timetable") === 0
-						? <Timetable data={this.state} sidebaropen={this.state.sidebaropen} ref={this.timetableref} handleChange ={this.handleChange} />
-						: tempString.localeCompare("info") === 0
-							? <BasicInformation data={this.state} sidebaropen={this.state.sidebaropen} handleChange={this.handleChange}/>
-							: <Suggestion eventId={this.state.eventId}/>}
-
+		if (this.state.deleted) {
+			return (
+                <Redirect to='/' />
+            )
+		} else {
+			return (
+				<div style={{width: this.state.sidebaropen ? "calc(100% - 240px)" : "calc(100% - 50px)", top: "100px"}}>
+					<Sidemenu togglesidebar={this.togglesidebar} visible={this.state.sidebaropen} toggleContent={this.toggleContent} handleDelete={this.handleDelete}/>
+					<div  id="maincontent" style={{marginLeft: this.state.sidebaropen ? "230px": "40px", width: "100%"}}>
+						{tempString.localeCompare("timetable") === 0
+							? <Timetable data={this.state} sidebaropen={this.state.sidebaropen} ref={this.timetableref} handleChange ={this.handleChange} />
+							: tempString.localeCompare("info") === 0
+								? <BasicInformation data={this.state} sidebaropen={this.state.sidebaropen} handleChange={this.handleChange}/>
+								: <Suggestion eventId={this.state.eventId}/>}
+	
+					</div>
 				</div>
-			</div>
-        );
+			);
+		}
+		
     }
 }
 

@@ -3,7 +3,7 @@ import {Timeline, TimelineEvent} from 'react-event-timeline'
 import Axios from 'axios'
 
 import WriteSuggestion from './MakeSuggestion'
-
+import './suggestionstyle.css'
 
 /*
 what a timeline event takes in 
@@ -31,6 +31,7 @@ class SuggestionMain extends React.Component {
 
 
     getContent() {
+        console.log("getting content")
         Axios.get('http://localhost:5000/event/suggestions/' + this.props.eventId)
             .then((res) => {
                 console.log("res suggestion: ")
@@ -56,14 +57,17 @@ class SuggestionMain extends React.Component {
         console.log("toggle delete")
         console.log(event.target)
         Axios.post('http://localhost:5000/event/deleteSuggestion/' + this.props.eventId, {sugId: event.target.id})
-            .then(this.getContent())
+            .then((res) => {
+                this.getContent()
+                return res
+            })
     }
     render() {
         console.log("suggestion:", this.props)
         console.log(this.state.allSuggestion)
         return (
             <div>
-            <h1 style={{textAlign:"left", paddingLeft: "10px"}}>View Suggestions:</h1>
+            <h1 style={{textAlign:"left", paddingLeft: "10px", alignContent:"center"}}>View Suggestions:</h1>
             <hr />
             <Timeline>
                 {this.state.allSuggestion.map((data) => {

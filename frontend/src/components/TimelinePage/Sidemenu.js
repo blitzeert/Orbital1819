@@ -28,11 +28,12 @@ class Sidemenu extends React.Component {
                     <button name="info" onClick={this.toggleContent}>Basic Information</button>
                     <button name="timetable" onClick={this.toggleContent}>TimeLine</button>
                     <button name="suggestion" onClick={this.toggleContent}>Suggestions</button>
+                    <button name="suggestion" onClick={this.toggleContent}>Refresh</button>
+                    <button name="suggestion" onClick={this.props.handleDelete}>Delete</button>
                 </div>
             </div>
         );
     }
-     
 }
 
 export default Sidemenu

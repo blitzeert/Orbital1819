@@ -108,7 +108,7 @@ class ItemDesc extends React.Component {
                               </div>}
                 </div>
 
-                <img src={downarrow} height="30" style={{float:"right", cursor:"pointer"}}  onClick={this.toggleContent}/>
+                <img src={downarrow} height="30" style={{float:"right", cursor:"pointer"}}  onClick={this.toggleContent} alt="clickMe"/>
                 </span>
                 <hr style={{display: this.state.open ? "block" : "none" , width:"100%", float:"center", marginTop:"5px", marginBottom:"5px"}}/>
                 <div style={{display: this.state.open ? "block" : "none" , textAlign:"left", margin:"5px"}}>

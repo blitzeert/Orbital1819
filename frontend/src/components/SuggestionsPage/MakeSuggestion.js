@@ -2,6 +2,8 @@ import React from 'react'
 import moment from 'moment'
 import axios from 'axios'
 
+
+
 class MakeSuggestion extends React.Component {
     constructor(props) {
         super(props);
@@ -50,7 +52,7 @@ class MakeSuggestion extends React.Component {
     render() {
         console.log("make suggesgtion eventId: ", this.state.eventId)
         return(
-            <div>
+            <div style={{textAlign:"center"}}>
                 Title: 
                 <input 
                     type="text" 
@@ -59,7 +61,7 @@ class MakeSuggestion extends React.Component {
                     onChange={this.handleChange} 
                     autoComplete="off"
                     style={{margin:"5px"}}
-                />
+                /><br />
                 <textarea
                     style={{resize:"none"}}
                     rows="4"
@@ -69,7 +71,7 @@ class MakeSuggestion extends React.Component {
                     value={this.state.text}
                     placeholder="Write Something" />
                 <br />
-                <input type="submit" value="Submit" onClick={this.handleSubmit}/>
+                <button className="btn" onClick={this.handleSubmit} ><b>Submit</b></button>
             </div>
         );
     }

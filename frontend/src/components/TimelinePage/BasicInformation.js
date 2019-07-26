@@ -50,7 +50,8 @@ class BasicInformation extends React.Component {
                     vacationName: this.props.data.vacationName,
                     defaultTimeStart:  moment(this.props.data.defaultTimeStart).startOf("day").unix(),
                     defaultTimeEnd: moment(this.props.data.defaultTimeEnd).endOf("day").unix(),
-                    destination: this.props.data.destination
+                    destination: this.props.data.destination,
+                    description: this.props.data.description
             }).then(
                 this.setState({
                     validDate: true
@@ -68,13 +69,14 @@ class BasicInformation extends React.Component {
     render() {
         console.log("renndering basic information", this.props.data)
         return (
-            <div style={{width:"300px", height:"", margin:"10px", paddingBottom:"30px",paddingRight:"5px", border:"1px solid black", float:"container"}}>
+            <div style={{width:"300px", height:"", margin:"10px", paddingLeft:"10px", paddingBottom:"30px",paddingRight:"5px", border:"1px solid black", float:"container", marginTop:"30px"}}>
                 The Trip
                 <form onSubmit={this.handleSubmit}>
                     <div style={{float:"left"}}>
                     Trip Name:
                     <input 
-                        type="text" 
+                        type="text"
+                        placeholder="Your Trip"
                         value={this.props.data.vacationName} 
                         name="vacationName" 
                         onChange={this.handleChange} 
@@ -87,6 +89,7 @@ class BasicInformation extends React.Component {
                     Destination:
                     <input 
                         type="text" 
+                        placeholder="destination"
                         value={this.props.data.destination}
                         name="destination" 
                         onChange={this.handleChange}
@@ -112,6 +115,19 @@ class BasicInformation extends React.Component {
                         value={moment(this.props.data.defaultTimeEnd).format("YYYY-MM-DD")}
                         name="defaultTimeEnd" 
                         onChange={this.handleChangeDate}
+                        style={{margin:"5px"}}
+                    />
+                    </div>
+                    <br /><br />
+                    <div style={{float:"left"}}>
+                    Description:
+                    <input 
+                        type="text"
+                        placeholder="Description"
+                        value={this.props.data.description} 
+                        name="description" 
+                        onChange={this.handleChange} 
+                        autoComplete="off"
                         style={{margin:"5px"}}
                     />
                     </div>

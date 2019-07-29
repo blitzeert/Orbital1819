@@ -28,6 +28,7 @@ router.get('/reset', (req, res) => {
             "destination TEXT," +
             "startTime	TEXT," +
             "endTime	TEXT" +
+            "description TEXT" +
             ")";
         db.run(command1, function(err) {
             if(err) {
@@ -36,6 +37,51 @@ router.get('/reset', (req, res) => {
         })
     })
 })
+
+router.get('/users', (req, res) => {
+    db.all('SELECT * FROM UserInfo', (err, rows) => {
+        if(err) {
+            console.log(err)
+        } else {
+            console.log("sending user info: ", rows)
+            res.send(rows)
+            console.log("---------------------------------------------")
+        }
+    })
+})
+
+router.post('/addusers', (req, res) => {
+    
+    console.log(req.body)
+    db.run("INSERT INTO UserInfo VALUES(null, ?, ?, '')", [req.body.username, req.body.password], function(err) {
+        if(err) {
+                console.log("error insert new code: " , err)
+        } else {
+            console.log("adding new user to database:", req.body.username)
+            res.send(this.lastID.toString()) //returning the id
+            console.log("---------------------------------------------")
+        }
+    })
+})
+router.post('/modifyusers', (req, res) => {
+    console.log("modifying user")
+    console.log(req.body)
+    var command = "UPDATE  UserInfo SET " +
+         "events = " + "'" + req.body.events + "'" +
+         " WHERE id = " + req.body.id;
+
+    console.log("command: ", command)
+    db.run(command, function(err) {
+        if(err) {
+            console.log("error in posting basic update: " + err.message)
+        } else {
+            res.send("done")
+        }
+        console.log("---------------------------------------------")
+    })
+})
+
+
 //to get a random word
 router.get('/example', (req, res) => {
     axios.get('https://passwordwolf.com/api/?lower=off&numbers=off&special=off&length=7&repeat=1')
@@ -57,7 +103,7 @@ router.get('/new', (req, res) => {
         .then((response) => {
             db.serialize(function() {
                 //adding the code to the main table
-                db.run("INSERT INTO allEvents VALUES(null, ?, null, null, null, null)", [response], function(err) {
+                db.run("INSERT INTO allEvents VALUES(null, ?, '', '', '', '', '')", [response], function(err) {
                     if(err) {
                             console.log("error insert new code: " , err)
                     } else {
@@ -88,6 +134,7 @@ router.get('/new', (req, res) => {
             // ADD THIS THROW error
             throw error;
         })
+
 
 
 /*
@@ -136,7 +183,7 @@ router.get('/basic/:eventId', (req, res) => {
         if(err) {
             console.log("error getting basic: ", err.message)
         } else {
-            console.log("basicINfo: ",req.params.eventId," : ", rows)
+            console.log("basicINfo: ", req.params.eventId," : ", rows)
             res.send(rows)
             console.log("---------------------------------------------")
         }
@@ -146,13 +193,12 @@ router.get('/basic/:eventId', (req, res) => {
 router.get('/items/:eventId', (req, res) => {
     
     db.serialize(function() {
-        
+        console.log("req.params.id:", req.params.eventId)
         db.all('SELECT code FROM allEvents WHERE id=?', [req.params.eventId], (err, rows) => {
             if(err) {
                 console.log("error getting basic: ", err.message)
             } else {
                 var temp = rows[0].code + "_ItemInfo"
-                console.log("temp: ", temp)
                 var command = 'SELECT * FROM ' + temp
                 console.log("command: ", command)
                 db.all(command, (err, rows) => {
@@ -200,12 +246,13 @@ router.get('/suggestions/:eventId', (req, res) => {
 })
 //to update/modify the basic information
 router.post('/updateBasic/:eventId', (req, res) => {
-    console.log("inside updatye basic")
+    console.log("inside update basic")
     var command = "UPDATE allEvents SET " +
          "name = " + "'" + req.body.vacationName + "'" +
          ", destination = " + "'" + req.body.destination + "'" + 
-         ", startTime = " + req.body.defaultTimeStart + 
-         ", endTime = " + req.body.defaultTimeEnd +
+         ", startTime = " + "'" + req.body.defaultTimeStart + "'" +
+         ", endTime = " + "'" + req.body.defaultTimeEnd + "'" +
+         ", description = " + "'" + req.body.description + "'" +
          " WHERE id = " + req.params.eventId;
 
     console.log("command: ", command)
@@ -372,6 +419,46 @@ router.post('/deleteItem/:eventId', (req, res) => {
                         console.log("---------------------------------------------")
                     }
                 });
+            }
+        })
+    })
+});
+//delete event
+router.post('/deleteEvent/:eventId', (req, res) => {
+    db.serialize(function() {
+        db.all('SELECT code FROM allEvents WHERE id=?', [req.params.eventId], (err, rows) => {
+            if(err) {
+                console.log("error deleteing event: ", err.message)
+            } else {
+                console.log("rows: ", rows)
+                console.log(req.params)
+                var code = rows[0].code
+                var maincommand = "DELETE FROM allEvents WHERE id = " + req.params.eventId;
+                    console.log("command: ", maincommand)
+                var delone = "DROP TABLE " + code + "_ItemInfo"
+                    console.log("command: ", delone)
+                var deltwo = "DROP TABLE " + code + "_Suggestion"
+                    console.log("command: ", deltwo)
+                
+                    db.run(maincommand, function(err) {
+                        if(err) {
+                                console.log("error deleting event: " , err)
+                        }
+                    });
+
+                    db.run(delone, function(err) {
+                        if(err) {
+                                console.log("error deleting event: " , err)
+                        }
+                    });
+
+                    db.run(deltwo, function(err) {
+                        if(err) {
+                                console.log("error deleting event: " , err)
+                        }
+                    });
+                res.send("done")
+                console.log("---------------------------------------------")
             }
         })
     })

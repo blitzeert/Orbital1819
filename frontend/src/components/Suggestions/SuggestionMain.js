@@ -1,10 +1,9 @@
 import React from 'react'
-import {Timeline, TimelineEvent} from 'react-event-timeline'
+import { Timeline, TimelineEvent } from 'react-event-timeline'
 import Axios from 'axios'
-import SuggestionData from './temp'
 
 import WriteSuggestion from './MakeSuggestion'
-
+import './suggestionstyle.css'
 
 /*
 what a timeline event takes in 
@@ -23,23 +22,24 @@ class SuggestionMain extends React.Component {
         this.toggleDelete = this.toggleDelete.bind(this)
         this.getContent = this.getContent.bind(this)
     }
-    
+
     handleSubmit(newData) {
         this.setState({
             allSuggestion: this.state.allSuggestion.concat(newData)
-        }, () => {console.log("NEW STATE"); console.log(this.state)})
+        }, () => { console.log("NEW STATE"); console.log(this.state) })
     }
 
 
     getContent() {
+        console.log("getting content")
         Axios.get('http://localhost:5000/event/suggestions/' + this.props.eventId)
             .then((res) => {
                 console.log("res suggestion: ")
                 console.log(res)
-                if(("").localeCompare(res) === 1) {
+                if (("").localeCompare(res) === 1) {
                     console.log("items is null")
                     this.setState({
-                        allSuggestion:[],
+                        allSuggestion: [],
                     })
                 } else {
                     console.log("items not null")
@@ -50,40 +50,43 @@ class SuggestionMain extends React.Component {
             })
     }
     componentDidMount() {
-		this.getContent()
+        this.getContent()
     }
 
     toggleDelete(event) {
         console.log("toggle delete")
         console.log(event.target)
-        Axios.post('http://localhost:5000/event/deleteSuggestion/' + this.props.eventId, {sugId: event.target.id})
-            .then(this.getContent())
+        Axios.post('http://localhost:5000/event/deleteSuggestion/' + this.props.eventId, { sugId: event.target.id })
+            .then((res) => {
+                this.getContent()
+                return res
+            })
     }
     render() {
         console.log("suggestion:", this.props)
         console.log(this.state.allSuggestion)
         return (
             <div>
-            <h1 style={{textAlign:"left", paddingLeft: "10px"}}>View Suggestions:</h1>
-            <hr />
-            <Timeline>
-                {this.state.allSuggestion.map((data) => {
-                    return (
-                        <TimelineEvent
-                            id={data.id}
-                            key = {data.id}
-                            title={data.title}
-                            createdAt={data.createdAt}
-                            icon={<i className="material-icons md-18" onClick={this.toggleDelete} id={data.id}>NEED_DELETE_ICON</i>}>
-                            {data.text}
-                        </TimelineEvent>
-                    );
-                })}
-        </Timeline>
-        <hr />
-        
-        <WriteSuggestion submitHandle={this.handleSubmit} eventId={this.props.eventId} getContent={this.getContent}/>
-        </div>
+                <h1 style={{ textAlign: "left", paddingLeft: "10px", alignContent: "center" }}>View Suggestions:</h1>
+                <hr />
+                <Timeline>
+                    {this.state.allSuggestion.map((data) => {
+                        return (
+                            <TimelineEvent
+                                id={data.id}
+                                key={data.id}
+                                title={data.title}
+                                createdAt={data.createdAt}
+                                icon={<i className="material-icons md-18" onClick={this.toggleDelete} id={data.id}>NEED_DELETE_ICON</i>}>
+                                {data.text}
+                            </TimelineEvent>
+                        );
+                    })}
+                </Timeline>
+                <hr />
+
+                <WriteSuggestion submitHandle={this.handleSubmit} eventId={this.props.eventId} getContent={this.getContent} />
+            </div>
         );
     }
 }

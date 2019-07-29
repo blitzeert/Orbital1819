@@ -9,7 +9,7 @@ class TimelineContainer extends React.Component {
         this.state = {
             code: "",
             path: "",
-            finishGetting: false,
+            finishGetting: false
         }
 
         this.getCode = this.getCode.bind(this)
@@ -19,14 +19,40 @@ class TimelineContainer extends React.Component {
         console.log("inside GetWord 2")
         axios.get('http://localhost:5000/event/new')
             .then((res) => {
-                this.setState({
-                    code: res.data,
-                    path: '/event/' + res.data,
-                    finishGetting: true,
-                }, () => {
-                    console.log("TimelineContainer finished")
-                    console.log(res.data)
-                })
+                //add the event code to the user
+                axios.get('http://localhost:5000/event/users')
+                    .then((response) => {
+                        return response.data
+                    }).then((response) => {
+                        var output = response.filter((user) => {
+                            var temp = user.username;
+                            return (temp.localeCompare(this.props.username) === 0)
+                        })
+                        return output
+                    }).then((response) => {
+                        console.log(response[0])
+                        var userId = response[0].id;
+                        var events = response[0].events
+                        events += " " + res.data
+                        events = events.trim()
+                        const post = {
+                            id: userId,
+                            events: events
+                        }
+                        axios.post('http://localhost:5000/event/modifyusers', post)
+                            .then((responseNotUsed) => {
+                                //then redirect
+                                this.setState({
+                                    code: res.data,
+                                    path: '/event/' + res.data,
+                                    finishGetting: true,
+                                }, () => {
+                                    console.log("TimelineContainer finished")
+                                    console.log(res.data)
+                                })
+                            })
+
+                    })
 
             })
             .catch(function (error) {
@@ -42,14 +68,21 @@ class TimelineContainer extends React.Component {
     }
 
     render() {
-        return (
-            <div>
-                {this.state.finishGetting
-                    ? <Redirect to={this.state.path} />
-                    : <h1> loading </h1>}
-            </div>
+        var empt = ""
 
-        )
+        if (empt.localeCompare(this.props.username) === 0) {
+            return (
+                <Redirect to='/login' />
+            )
+        } else {
+            return (
+                <div>
+                    {this.state.finishGetting
+                        ? <Redirect to={{ pathname: this.state.path, eventId: { id: this.state.code } }} />
+                        : <h1> loading </h1>}
+                </div>
+            )
+        }
     }
 }
 

@@ -2,6 +2,8 @@ import React from 'react'
 import moment from 'moment'
 import axios from 'axios'
 
+
+
 class MakeSuggestion extends React.Component {
     constructor(props) {
         super(props);
@@ -11,7 +13,7 @@ class MakeSuggestion extends React.Component {
             title: "",
             text: "",
             submitHandle: this.props.submitHandle,
-            
+
             getContent: this.props.getContent
         }
         this.handleChange = this.handleChange.bind(this);
@@ -19,7 +21,7 @@ class MakeSuggestion extends React.Component {
     }
 
     handleChange(event) {
-        const {name, value} = event.target;
+        const { name, value } = event.target;
         this.setState({
             [name]: value,
         })
@@ -46,30 +48,30 @@ class MakeSuggestion extends React.Component {
         //     text: this.state.text
         // }])
     }
-    
+
     render() {
         console.log("make suggesgtion eventId: ", this.state.eventId)
-        return(
-            <div>
-                Title: 
-                <input 
-                    type="text" 
-                    value={this.state.title} 
-                    name="title" 
-                    onChange={this.handleChange} 
+        return (
+            <div style={{ textAlign: "center" }}>
+                Title:
+                <input
+                    type="text"
+                    value={this.state.title}
+                    name="title"
+                    onChange={this.handleChange}
                     autoComplete="off"
-                    style={{margin:"5px"}}
-                />
+                    style={{ margin: "5px" }}
+                /><br />
                 <textarea
-                    style={{resize:"none"}}
+                    style={{ resize: "none" }}
                     rows="4"
                     cols="100"
                     onChange={this.handleChange}
-                    name= "text"
+                    name="text"
                     value={this.state.text}
                     placeholder="Write Something" />
                 <br />
-                <input type="submit" value="Submit" onClick={this.handleSubmit}/>
+                <button className="btn" onClick={this.handleSubmit} ><b>Submit</b></button>
             </div>
         );
     }

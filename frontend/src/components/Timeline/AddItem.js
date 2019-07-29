@@ -2,6 +2,8 @@ import React from 'react'
 import axios from 'axios'
 import moment from 'moment'
 
+import './additemstyle.css'
+
 class AddItem extends React.Component {
     constructor(props) {
         super(props);
@@ -9,22 +11,24 @@ class AddItem extends React.Component {
         this.state = {
             eventId: this.props.eventId,
             open: false,
-            name: "",
+            name: "New Activity",
             defaultTimeStart: this.props.defaultTimeStart,
         }
         this.toggleContent = this.toggleContent.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.handleChange = this.handleChange.bind(this)
     }
-    
-    toggleContent() {
+
+    toggleContent(event) {
+        event.preventDefault()
         this.setState({
             open: !this.state.open
         })
+        console.log("toggling")
     }
 
     handleChange(event) {
-        const {name, value} = event.target
+        const { name, value } = event.target
         this.setState({ //the [] is to declare the string as a object variable(?)
             [name]: value
         })
@@ -38,7 +42,7 @@ class AddItem extends React.Component {
             endTime: moment(this.state.defaultTimeStart, 'X').add(2, "hours").unix(),
             itemDesc: ""
         }
-        
+
         axios.post('http://localhost:5000/event/addItem/' + this.state.eventId, output1)
             .then((res) => {
                 console.log(res)
@@ -46,34 +50,58 @@ class AddItem extends React.Component {
                     id: res.data,
                     group: 1,
                     title: this.state.name,
-                    startTime: moment(this.state.defaultTimeStart, 'X'),
-                    endTime: moment(this.state.defaultTimeStart, 'X').add(2, "hours"),
+                    start_time: moment(this.state.defaultTimeStart, 'X'),
+                    end_time: moment(this.state.defaultTimeStart, 'X').add(2, "hours"),
                     itemDesc: ""
                 }
+                console.log("new item: ", output2)
                 this.props.handleAdd(output2)
                 return res
             })
-        
+
     }
 
     render() {
         const style = {
-            width:"100%",
-            border:"1px solid black",
-            height: this.state.open ? "auto" : "30px",
-            marginBottom:"5px",
+            width: "100%",
+            border: "1px solid black",
+            height: "auto",
+            marginBottom: "0px",
             transition: "0.3s"
         }
-    
+
         return (
             <div style={style}>
-                <button onClick={this.toggleContent}>
+                <button className="mainbtn" onClick={this.toggleContent}>
                     add Item
                 </button>
-                <hr style={{display: this.state.open ? "block" : "none" , width:"100%", float:"center", marginTop:"5px", marginBottom:"5px"}}/>
-                <div style={{display: this.state.open ? "block" : "none" , textAlign:"left", margin:"5px"}}>
+                <div className="form-popup" id="myForm" style={{ display: this.state.open ? "block" : "none" }}>
+                    <form className="form-container" autoComplete="off">
+                        <h1>New Event</h1>
+
+                        <label for="email"><b>Name</b></label><br />
+                        <input type="text" value={this.state.name} name="name" required onChange={this.handleChange} size="24" />
+
+                        <button type="submit" className="btn" onClick={this.handleSubmit}>Add</button>
+                        <button className="btn cancel" onClick={this.toggleContent}>Close</button>
+                    </form>
+                </div>
+
+
+            </div>
+        );
+    }
+}
+
+export default AddItem
+
+
+
+/*
+
+<div style={{display: this.state.open ? "block" : "none" , textAlign:"left", margin:"5px"}}>
                 Item Name:
-                <input 
+                <input
                     type="text"
                     value={this.state.name}
                     name="name"
@@ -83,9 +111,5 @@ class AddItem extends React.Component {
                 <br />
                 <input type="submit" value="ADD" onClick={this.handleSubmit}/>
             </div>
-            </div>
-        );
-    }
-}
 
-export default AddItem
+*/

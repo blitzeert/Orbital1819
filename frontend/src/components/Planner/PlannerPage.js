@@ -32,7 +32,6 @@ class PlannerPage extends React.Component {
   getEvents(code) {
     Axios.get('http://localhost:5000/getEvents/' + code).then((res) => {
       let allEvents = [];
-      console.log(res.data)
       for (var i in res.data) {
         var event = res.data[i];
         allEvents.push({
@@ -42,7 +41,6 @@ class PlannerPage extends React.Component {
           allDay: false
         })
       }
-      console.log(allEvents);
       this.setState({
         loaded: true,
         events: allEvents

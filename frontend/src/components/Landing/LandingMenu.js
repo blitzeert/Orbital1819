@@ -5,7 +5,7 @@ import './LandingMenu.css';
 
 class LandingMenu extends React.Component {
   loginPage() {
-    if (this.props.userData === {}) {
+    if (!('username' in this.props.userData)) {
       return (
         <Row className="login justify-content-center mb-5">
           <Col lg="auto" className="text-center">
@@ -19,11 +19,12 @@ class LandingMenu extends React.Component {
   }
 
   render() {
+    console.log(this.props.userData)
     return (
       <Container fluid className="landing-menu">
         <Row className="hello justify-content-center align-items-center mb-5">
           <Col lg={3} className="text-center">
-            <p>{this.props.userData.username === '' ? 'Hello!' : 'Hello, ' + this.props.userData.username + '!'}</p>
+            <p>{'username' in this.props.userData ? 'Hello, ' + this.props.userData.username + '!' : 'Hello!'}</p>
           </Col>
         </Row>
 

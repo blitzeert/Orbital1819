@@ -31,7 +31,6 @@ class AppRoutes extends React.Component {
   }
 
   componentWillMount() {
-    console.log('mounting');
     if (localStorage.getItem('userData') == null) {
       localStorage.setItem('userData', '{}');
     }

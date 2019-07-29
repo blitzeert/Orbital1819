@@ -9,7 +9,6 @@ const axios = require('axios')
 
 const event = require('./routes/Event');
 
-
 const app = express();
 app.use(cors());
 app.use(bodyparser());
@@ -23,13 +22,87 @@ app.get('/example', (req, res) => {
     console.log("gettig")
     axios.get('https://passwordwolf.com/api/?length=8&upper=off&lower=off&special=off&exclude=012345&repeat=5')
         .then(response => res.send(response.data))
-        .catch(function(error) {
+        .catch(function (error) {
             console.log('There has been a problem with your fetch operation: ' + error.message);
-             // ADD THIS THROW error
-              throw error;
+            // ADD THIS THROW error
+            throw error;
         })
 })
 
 app.use('/event', event)
+
+const sqlite3 = require('sqlite3')
+let db = new sqlite3.Database('./abcd.db');
+
+// Requires: userId, calendarName, destination, startDate, endDate
+app.post('/addCalendar', (req, res) => {
+    const data = req.query;
+
+    axios.get('http://localhost:5000/event/example').then((resp) => {
+        let code = resp.data[0].password;
+
+        db.serialize(() => {
+            db.run(
+                `INSERT INTO allEvents (code, name, destination, startTime, endTime, events) VALUES ($code, $name, $dest, $start, $end, '{"events":[]}')`,
+                {
+                    $code: code,
+                    $name: data.calendarName,
+                    $dest: data.destination,
+                    $start: data.startDate,
+                    $end: data.endDate
+                },
+                function (err) {
+                    if (err) {
+                        console.log(err);
+                    }
+                }
+            );
+
+            db.run(
+                "UPDATE UserInfo SET events = events || $code || ',' WHERE id = $id",
+                {
+                    $code: code,
+                    $code: data.userId,
+                },
+                function (err) {
+                    if (err) {
+                        console.log(err);
+                    }
+                }
+            );
+        });
+
+        res.send({ calendarCode: code });
+    });
+});
+
+app.get('/getEvents/:code', (req, res) => {
+    db.get("SELECT events FROM allEvents WHERE code = $code", { $code: req.params.code }, (err, row) => {
+        if (!err) {
+            res.send(JSON.parse(row.events).events)
+        } else {
+            console.log(err);
+        }
+    })
+})
+
+app.post('/addEvent/:code/:data', (req, res) => {
+    db.get("SELECT events FROM allEvents WHERE code = $code", { $code: req.params.code }, (err, row) => {
+        if (!err) {
+            eventsObj = JSON.parse(row.events);
+            eventsObj.events.push(JSON.parse(req.params.data));
+            console.log(eventsObj)
+            db.run("UPDATE allEvents SET events = $events WHERE code = $code", { $events: JSON.stringify(eventsObj), $code: req.params.code }, (err) => {
+                if (!err) {
+                    res.send("OK");
+                } else {
+                    console.log(err);
+                }
+            })
+        } else {
+            console.log(err);
+        }
+    });
+});
 
 app.listen('5000');

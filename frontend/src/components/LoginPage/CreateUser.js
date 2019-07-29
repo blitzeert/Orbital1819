@@ -2,7 +2,7 @@ import React from 'react'
 import Axios from 'axios'
 import {
     Redirect
-  } from 'react-router-dom';
+} from 'react-router-dom';
 
 
 class CreateUser extends React.Component {
@@ -10,9 +10,9 @@ class CreateUser extends React.Component {
         super(props)
 
         this.state = {
-            username:"",
-            psw:"",
-            nameUsed:false,
+            username: "",
+            psw: "",
+            nameUsed: false,
             emptyfield: false,
             toRedirect: false,
         }
@@ -32,7 +32,7 @@ class CreateUser extends React.Component {
     handleSubmit(event) {
         event.preventDefault()
         var empt = ""
-        if(empt.localeCompare(this.state.username) === 0 || empt.localeCompare(this.state.psw) === 0) {
+        if (empt.localeCompare(this.state.username) === 0 || empt.localeCompare(this.state.psw) === 0) {
             this.setState({
                 emptyfield: true
             })
@@ -68,20 +68,20 @@ class CreateUser extends React.Component {
                     }
                 }).catch((err) => {
                     console.log(err)
-            })
+                })
         }
     }
 
     render() {
         const style = {
-            height:"350px",
+            height: "380px",
             marginTop: "-175px",
         }
-        const pstyle ={
+        const pstyle = {
             padding: "0",
             margin: "0",
-            marginBottom:"10px",
-            color:"red"
+            marginBottom: "10px",
+            color: "red"
         }
 
         if (this.state.toRedirect) {
@@ -95,13 +95,13 @@ class CreateUser extends React.Component {
                 <div className="loginForm" id="myForm" style={style}>
                     <form className="loginform-container" autoComplete="off">
                         <h1>Register</h1>
-    
+
                         <label><b>Username</b></label>
                         {!this.state.nameUsed
                             ? ""
                             : <p style={pstyle}>Username Used</p>}
                         <input type="text" placeholder="Enter Username" name="username" onChange={this.handleChange} value={this.state.username} required />
-                        
+
                         <label><b>Password</b></label>
                         <input type="password" placeholder="Enter Password" name="psw" onChange={this.handleChange} value={this.state.psw} required />
                         {!this.state.emptyfield
@@ -112,7 +112,7 @@ class CreateUser extends React.Component {
                 </div>
             )
         }
-        
+
     }
 }
 

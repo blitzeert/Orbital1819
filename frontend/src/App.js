@@ -1,62 +1,69 @@
 import React from 'react';
-import './App.css';
 
-import {
-  BrowserRouter as Router,
-  Route,
-  Switch,
-} from 'react-router-dom';
+import LandingPage from './components/Landing/LandingPage';
+import PlannerPage from './components/Planner/PlannerPage';
 
-import Header from './components/Header/Header'
-import Timeline from './components/TimelinePage/TimelineMain'
-import TimelineContainer from './components/TimelineContainer'
-import LoginPage from './components/LoginPage/LoginMain'
-import CreateUserPage from './components/LoginPage/CreateUser'
-import Home from './components/Home'
-
+import './App.css'
 
 class App extends React.Component {
   constructor(props) {
-    super(props)
+    super(props);
 
     this.state = {
-      username:""
-    }
+      showLandingPage: true,
+      lastViewedCalendarCode: ''
+    };
 
-    this.setUsername = this.setUsername.bind(this)
+    this.toggleLanding = this.toggleLanding.bind(this);
+    this.loadCalendar = this.loadCalendar.bind(this);
   }
 
-  setUsername(name) {
+  componentWillMount() {
+    if (localStorage.getItem('lastViewedCalendarCode') == null) {
+      localStorage.setItem('lastViewedCalendarCode', '');
+    }
+
+    let lastViewedCalendarCode = localStorage.getItem('lastViewedCalendarCode');
+
     this.setState({
-      username: name
+      showLandingPage: lastViewedCalendarCode === '',
+      lastViewedCalendarCode: lastViewedCalendarCode
+    });
+  }
+
+  toggleLanding() {
+    this.setState({
+      showLandingPage: !this.state.showLandingPage
+    });
+  }
+
+  loadCalendar(code) {
+    localStorage.setItem('lastViewedCalendarCode', code);
+    this.setState({
+      showLandingPage: false,
+      lastViewedCalendarCode: code
     })
   }
 
   render() {
-    return ( 
-      <Router>
-        <div className="App"> 
-          <Header username={this.state.username} setUsername={this.setUsername}/>
-            <Switch>
-            <Route exact path="/" render={() => <Home username={this.state.username} />} />
-            <Route path='/event/:id' render={(props) => <Timeline {...props} username={this.state.username} />} />
-            <Route path="/newTimeLine" render={() => <TimelineContainer username={this.state.username} />} />
-            <Route path="/login" render={() => <LoginPage setUsername={this.setUsername}/>} />
-            <Route path="/createuser" render={() => <CreateUserPage setUsername={this.setUsername} />} />
-            <Route component={NotFound} />
-            </Switch>
-        </div>
-      </Router>
+    return (
+      <div className="App">
+        <LandingPage
+          userData={this.props.userData}
+          showLandingPage={this.state.showLandingPage}
+          toggleLanding={this.toggleLanding}
+          loadCalendar={this.loadCalendar}
+        />
+
+        <PlannerPage
+          userData={this.props.userData}
+          calendarCode={this.state.lastViewedCalendarCode}
+          showLandingPage={this.state.showLandingPage}
+          toggleLanding={this.toggleLanding}
+        />
+      </div>
     );
   }
-  
 }
-const NotFound = () => (  <h1>404.. This page is not found!</h1>)
 
 export default App;
-
-/*
-function Homew() {
-  return <h2>Home</h2>;
-}
-*/

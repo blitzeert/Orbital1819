@@ -15,6 +15,7 @@ class App extends React.Component {
     };
 
     this.toggleLanding = this.toggleLanding.bind(this);
+    this.loadCalendar = this.loadCalendar.bind(this);
   }
 
   componentWillMount() {
@@ -36,16 +37,28 @@ class App extends React.Component {
     });
   }
 
+  loadCalendar(code) {
+    localStorage.setItem('lastViewedCalendarCode', code);
+    this.setState({
+      showLandingPage: false,
+      lastViewedCalendarCode: code
+    })
+  }
+
   render() {
     return (
       <div className="App">
         <LandingPage
+          userData={this.props.userData}
           showLandingPage={this.state.showLandingPage}
           toggleLanding={this.toggleLanding}
+          loadCalendar={this.loadCalendar}
         />
 
         <PlannerPage
-          lastViewedCalendarCode={this.state.lastViewedCalendarCode}
+          userData={this.props.userData}
+          calendarCode={this.state.lastViewedCalendarCode}
+          showLandingPage={this.state.showLandingPage}
           toggleLanding={this.toggleLanding}
         />
       </div>

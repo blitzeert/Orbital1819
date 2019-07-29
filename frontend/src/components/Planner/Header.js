@@ -12,7 +12,7 @@ class Header extends React.Component {
           {' VacayPlanner'}
         </Navbar.Brand>
         <Nav className="ml-auto">
-          <NavDropdown title={<Navbar.Text>Hello, <u>{/* this.props.user.name */}</u>!</Navbar.Text>} alignRight>
+          <NavDropdown title={<Navbar.Text>Hello, <u>{this.props.userData.username}</u>!</Navbar.Text>} alignRight>
             <NavDropdown.Item onClick={this.props.toggleLanding}>Your calendars</NavDropdown.Item>
             <NavDropdown.Divider />
             <NavDropdown.Item href="/logout" className="text-danger">Logout</NavDropdown.Item>

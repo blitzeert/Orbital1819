@@ -1,17 +1,33 @@
-import React from 'react'
+import React from 'react';
 import { Container, Row, Col, Button, InputGroup, FormControl } from 'react-bootstrap';
 
 import './LandingMenu.css';
 
 class LandingMenu extends React.Component {
-  render() {
-    return (
-      <Container fluid="true" className="landing-menu">
-        <Row className="hello justify-content-center align-items-center mb-5">
-          <Col lg={3} className="text-center">
-            <p style={{ fontSize: 24 }}>Hello!</p>
+  loginPage() {
+    if (this.props.userData === {}) {
+      return (
+        <Row className="login justify-content-center mb-5">
+          <Col lg="auto" className="text-center">
+            <Button variant="outline-primary" className="px-5" href='/login'>Login</Button>
+            <p className="text-center my-2"> or </p>
+            <Button variant="outline-dark" className="px-5" href='/register'>Get Started</Button>
           </Col>
         </Row>
+      );
+    }
+  }
+
+  render() {
+    return (
+      <Container fluid className="landing-menu">
+        <Row className="hello justify-content-center align-items-center mb-5">
+          <Col lg={3} className="text-center">
+            <p>{this.props.userData.username === '' ? 'Hello!' : 'Hello, ' + this.props.userData.username + '!'}</p>
+          </Col>
+        </Row>
+
+        {this.loginPage()}
 
         <Row className="menu justify-content-center mb-5">
           <Col lg={3} className="calendars right-border">

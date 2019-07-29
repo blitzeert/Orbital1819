@@ -5,7 +5,7 @@ import { Redirect } from 'react-router-dom'
 import Timetable from './Timetable'
 import Sidemenu from './Sidemenu'
 import BasicInformation from './BasicInformation'
-import Suggestion from '../SuggestionsPage/SuggestionMain'
+import Suggestion from '../Suggestions/SuggestionMain'
 import Axios from 'axios';
 
 

@@ -7,8 +7,10 @@ class PlannerModals extends React.Component {
     return (
       <div className="planner-modals">
         <AddEventModal
+          code={this.props.code}
           show={this.props.showAddEventModal}
           toggleShow={this.props.toggleAddEventModal}
+          getEvents={this.props.getEvents}
         />
       </div>
     );

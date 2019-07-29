@@ -17,7 +17,7 @@
   /* The popup form - hidden by default */
   .loginForm {
     width:300px;
-    height:400px;
+    height:420px;
     padding: 20px;
     margin-left: -150px;
     margin-top: -200px;
@@ -31,7 +31,6 @@
   .loginform-container {
     /*max-width: 300px;*/
     padding: 10px;
-    background-color: white;
   }
   
   /* Full-width input fields */
@@ -53,10 +52,9 @@
   .loginform-container .btn {
     background-color: #4CAF50;
     color: white;
-    padding: 16px 20px;
-    border: none;
     cursor: pointer;
-    width: 100%;
+    border-radius: 0;
+    width: 80%;
     margin-bottom:10px;
     opacity: 0.8;
   }

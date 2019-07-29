@@ -7,8 +7,10 @@ class LandingModals extends React.Component {
     return (
       <div className="landing-modals">
         <CreateCalendarModal
+          userData={this.props.userData}
           show={this.props.showCreateCalendarModal}
           toggleShow={this.props.toggleCreateCalendarModal}
+          loadCalendar={this.props.loadCalendar}
         />
       </div>
     );

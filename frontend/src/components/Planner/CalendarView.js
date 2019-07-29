@@ -21,7 +21,9 @@ class Calendar extends React.Component {
           meridiem: false,
           hour12: false,
         }}
-        height='parent'
+        height={600}
+        editable={true}
+        events={this.props.events}
       />
     );
   }

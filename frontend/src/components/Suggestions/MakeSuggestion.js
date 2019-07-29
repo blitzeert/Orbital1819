@@ -52,7 +52,7 @@ class MakeSuggestion extends React.Component {
     render() {
         console.log("make suggesgtion eventId: ", this.state.eventId)
         return (
-            <div style={{ textAlign: "center" }}>
+            <div className="make-suggestion" style={{ textAlign: "center" }}>
                 Title:
                 <input
                     type="text"

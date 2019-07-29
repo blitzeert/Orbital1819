@@ -1,115 +1,56 @@
 import React from 'react';
-import './App.css';
 
-import {
-  BrowserRouter as Router,
-  StaticRouter, // for server rendering
-  Route,
-  Link,
-  Switch,
-  //hashHistory
-  // etc.
-} from 'react-router-dom';
+import LandingPage from './components/Landing/LandingPage';
+import PlannerPage from './components/Planner/PlannerPage';
 
-import Header from './components/Header'
-import TempContent from './components/TempContent'
-import Timeline from './components/TimelinePage/TimelineMain'
-import TImelineContainer from './components/TimelineContainer'
+import './App.css'
 
+class App extends React.Component {
+  constructor(props) {
+    super(props);
 
-function App() {
-  return ( 
-    <Router>
-      <div className="App"> 
-        <Header />
-          <Switch>
-          <Route exact path="/" component={Home} />
-          <Route path='/event/:id' component={Timeline} />
-          <Route path="/topics" component={Topics} />
-          <Route path="/newTimeLine" component={TImelineContainer} />
-          <Route component={NotFound} />
-          </Switch>
+    this.state = {
+      showLandingPage: true,
+      lastViewedCalendarCode: ''
+    };
+
+    this.toggleLanding = this.toggleLanding.bind(this);
+  }
+
+  componentWillMount() {
+    if (localStorage.getItem('lastViewedCalendarCode') == null) {
+      localStorage.setItem('lastViewedCalendarCode', '');
+    }
+
+    let lastViewedCalendarCode = localStorage.getItem('lastViewedCalendarCode');
+
+    this.setState({
+      showLandingPage: lastViewedCalendarCode === '',
+      lastViewedCalendarCode: lastViewedCalendarCode
+    });
+  }
+
+  toggleLanding() {
+    this.setState({
+      showLandingPage: !this.state.showLandingPage
+    });
+  }
+
+  render() {
+    return (
+      <div className="App">
+        <LandingPage
+          showLandingPage={this.state.showLandingPage}
+          toggleLanding={this.toggleLanding}
+        />
+
+        <PlannerPage
+          lastViewedCalendarCode={this.state.lastViewedCalendarCode}
+          toggleLanding={this.toggleLanding}
+        />
       </div>
-    </Router>
-   
-  );
+    );
+  }
 }
-/*
-<div className="App">
-        <div style={{height: "20px"}}>
-        <Header />
-        </div>
-        <div>
-        <Timeline />
-        </div>
-      </div>
-*/
-const NotFound = () => (  <h1>404.. This page is not found!</h1>)
-const Container = (props) => <div>  <Header />  {props.children}</div>
 
 export default App;
-function Home() {
-  return <h2>Home</h2>;
-}
-
-function About() {
-  return <h2>About</h2>;
-}
-
-function Topics({ match }) {
-  return <h3>Requested Param: {match.params.id}</h3>;
-}
-
-function Header2() {
-  return (
-    <ul>
-      <li>
-        <Link to="/">Home</Link>
-      </li>
-      <li>
-        <Link to="/event">About</Link>
-      </li>
-      <li>
-        <Link to="/topics">Topics</Link>
-      </li>
-    </ul>
-  );
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-<div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-*/

@@ -27,25 +27,45 @@ class AddEventModal extends React.Component {
   }
 
   handleSubmit(event) {
-    const startSplitted = this.state.startTime.split(':', 2).map(x => parseInt(x, 10));
-    const endSplitted = this.state.endTime.split(':', 2).map(x => parseInt(x, 10));
-    const data = {
-      title: this.state.place,
-      startTime: moment(this.state.date).startOf('day').add({ hours: startSplitted[0], minutes: startSplitted[1] }).format('YYYY-MM-DD hh:mm:ss'),
-      endTime: moment(this.state.date).startOf('day').add({ hours: endSplitted[0], minutes: endSplitted[1] }).format('YYYY-MM-DD hh:mm:ss'),
-    }
-
-    Axios.post('http://localhost:5000/addEvent/' + this.props.code + '/' + JSON.stringify(data))
-      .then((res) => {
-        console.log('success');
-        this.props.toggleShow();
-        this.props.getEvents(this.props.code);
-      })
-      .catch((err) => {
-        if (err) {
-          console.log(err);
+      Axios.get('http://localhost:5000/getEvents/' + this.props.code).then((res) => {
+        let allEvents = res.data;
+        let newId = '';
+        // get the last id;
+        if (allEvents.length === 0) {
+          newId = '0'; // this is redundant
+        } else {
+          newId =  '' + (parseInt(allEvents[allEvents.length - 1].id) + 1)
         }
-      });
+        console.log(res.data)
+        return newId
+      }).then((newId) => {
+        const startSplitted = this.state.startTime.split(':', 2).map(x => parseInt(x, 10));
+        const endSplitted = this.state.endTime.split(':', 2).map(x => parseInt(x, 10));
+        const data = {
+          id: newId,
+          title: this.state.place,
+          start: moment(this.state.date).startOf('day').add({ hours: startSplitted[0], minutes: startSplitted[1] }).format('YYYY-MM-DD HH:mm:ss'),
+          end: moment(this.state.date).startOf('day').add({ hours: endSplitted[0], minutes: endSplitted[1] }).format('YYYY-MM-DD HH:mm:ss'),
+          comment: '',
+        }
+
+        Axios.post('http://localhost:5000/addEvent/' + this.props.code + '/' + JSON.stringify(data))
+          .then((res) => {
+            console.log('success');
+            this.props.toggleShow();
+            this.props.getEvents(this.props.code);
+          })
+          .catch((err) => {
+            if (err) {
+              console.log(err);
+            }
+          });
+      }).catch((err) => {
+            if (err) {
+              console.log(err);
+            }
+          })
+
   }
 
   render() {

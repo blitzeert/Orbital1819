@@ -46,8 +46,10 @@ class App extends React.Component {
   }
 
   render() {
+    console.log(this.state)
     return (
       <div className="App">
+        
         <LandingPage
           userData={this.props.userData}
           showLandingPage={this.state.showLandingPage}
@@ -61,6 +63,7 @@ class App extends React.Component {
           showLandingPage={this.state.showLandingPage}
           toggleLanding={this.toggleLanding}
         />
+        
       </div>
     );
   }

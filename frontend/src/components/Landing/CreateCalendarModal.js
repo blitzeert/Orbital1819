@@ -36,7 +36,7 @@ class CreateCalendarModal extends React.Component {
       startDate: moment(this.state.startDate).startOf("day").unix(),
       endDate: moment(this.state.endDate).endOf("day").unix(),
     }
-
+    console.log(data)
     Axios.post('http://localhost:5000/addCalendar', data)
       .then((res) => {
         this.props.toggleShow();

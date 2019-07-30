@@ -7,9 +7,11 @@ class Header extends React.Component {
   render() {
     return (
       <Navbar collapseOnSelect expand="lg" bg="light" variant="light" className="header" sticky="top">
-        <Navbar.Brand href="/" className="px-3">
+        <Navbar.Brand className="px-3">
+          <div onClick={this.props.toggleLanding} style={{cursor:"pointer"}}>
           <img src="/logo.png" className="d-inline-block align-top" width="30" height="30" alt="VacayPlanner" />
           {' VacayPlanner'}
+          </div>
         </Navbar.Brand>
         <Nav className="ml-auto">
           <NavDropdown title={<Navbar.Text>Hello, <u>{this.props.userData.username}</u>!</Navbar.Text>} alignRight>

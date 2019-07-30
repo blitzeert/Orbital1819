@@ -36,8 +36,7 @@ let db = new sqlite3.Database('./abcd.db');
 
 // Requires: userId, calendarName, destination, startDate, endDate
 app.post('/addCalendar', (req, res) => {
-    const data = req.query;
-
+    const data = req.body;
     axios.get('http://localhost:5000/event/example').then((resp) => {
         let code = resp.data[0].password;
 
@@ -86,12 +85,22 @@ app.get('/getEvents/:code', (req, res) => {
     })
 })
 
+app.post('/updateEvent/:code/:data', (req, res) => {
+    db.run("UPDATE allEvents SET events = $events WHERE code = $code", { $events: req.params.data, $code: req.params.code }, (err) => {
+        if (!err) {
+            console.log("Success updating Event")
+            res.send("OK");
+        } else {
+            console.log(err);
+        }
+    })
+})
+
 app.post('/addEvent/:code/:data', (req, res) => {
     db.get("SELECT events FROM allEvents WHERE code = $code", { $code: req.params.code }, (err, row) => {
         if (!err) {
             eventsObj = JSON.parse(row.events);
             eventsObj.events.push(JSON.parse(req.params.data));
-            console.log(eventsObj)
             db.run("UPDATE allEvents SET events = $events WHERE code = $code", { $events: JSON.stringify(eventsObj), $code: req.params.code }, (err) => {
                 if (!err) {
                     res.send("OK");

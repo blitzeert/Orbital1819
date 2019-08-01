@@ -16,6 +16,9 @@ class PlannerPage extends React.Component {
     super(props);
 
     this.state = {
+      destination:'',
+      destinationId:'',
+      destinationLatLong:{},
       events: [],
       showAddEventModal: false,
       showItemDescModal: false,
@@ -26,6 +29,8 @@ class PlannerPage extends React.Component {
     this.handleShowItemDesc = this.handleShowItemDesc.bind(this);
     this.toggleItemDescModal = this.toggleItemDescModal.bind(this);
     this.getEvents = this.getEvents.bind(this);
+    this.getAllData = this.getAllData.bind(this);
+    this.getDestination = this.getDestination.bind(this);
     this.handleResize = this.handleResize.bind(this);
   }
 
@@ -53,6 +58,31 @@ class PlannerPage extends React.Component {
     console.groupEnd()
   }
 
+  getDestination(code) {
+    Axios.get('http://localhost:5000/getDestination/' + code).then((res) => {
+      console.log(res.data)
+      this.setState({
+        destination: res.data.destination,
+        destinationId: res.data.destinationId
+      });
+      if (res.data.destinationId) { // if have a destination if, get latLang
+        Axios.get('http://localhost:5000/getLatLong/' + res.data.destinationId)
+          .then((res) => {
+          this.setState({
+            destinationLatLong: res.data
+          })
+          }).catch((err) => {
+            if (err) {
+              console.log(err)
+            }
+          })
+      }
+    }).catch((err) => {
+      if (err) {
+        console.log(err);
+      }
+    })
+  }
   getEvents(code) {
     Axios.get('http://localhost:5000/getEvents/' + code).then((res) => {
       let allEvents = [];
@@ -62,6 +92,7 @@ class PlannerPage extends React.Component {
         allEvents.push({
           id: event.id,
           title: event.title,
+          placeId: event.placeId,
           start: event.start,
           end: event.end,
           comment: event.comment,
@@ -80,6 +111,10 @@ class PlannerPage extends React.Component {
     })
   }
 
+  getAllData(code) {
+    this.getDestination(code);
+    this.getEvents(code);
+  }
   handleResize(event) {
     console.group('resize');
     const events = this.state.events;
@@ -111,8 +146,9 @@ class PlannerPage extends React.Component {
   }
   render() {
     if (this.props.calendarCode !== '' && !this.state.loaded) {
-      this.getEvents(this.props.calendarCode);
+      this.getAllData(this.props.calendarCode);
     }
+    console.log(this.state)
     return (  
       <div className={classList('planner', this.props.showLandingPage && 'blurred')}>
         <Header userData={this.props.userData} toggleLanding={this.props.toggleLanding} />
@@ -132,6 +168,8 @@ class PlannerPage extends React.Component {
           toggleAddEventModal={this.toggleAddEventModal}
           getEvents={this.getEvents}
 
+          destinationLatLong={this.state.destinationLatLong}
+          destinationId={this.state.destinationId}
           showItemDescModal={this.state.showItemDescModal}
           toggleItemDescModal={this.toggleItemDescModal}
           item={this.state.showItem}

@@ -3,12 +3,16 @@ import Axios from 'axios';
 import { Modal, Form, Col, Button } from 'react-bootstrap';
 import { SingleDatePicker } from 'react-dates';
 import moment from 'moment';
+import Autocomplete from '../Map/Autocomplete';
+
+const google = window.google;
 
 class AddEventModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      place: '',
+      address: '',
+      placeId:'',
       date: null,
       startTime: '',
       endTime: '',
@@ -17,6 +21,7 @@ class AddEventModal extends React.Component {
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleSelect = this.handleSelect.bind(this)
   }
 
   handleChange(event) {
@@ -24,6 +29,17 @@ class AddEventModal extends React.Component {
     this.setState({
       [name]: value
     })
+  }
+
+  handleSelect(address, placeId) {
+    console.group("handle select add event")
+    this.setState({
+      address: address,
+      placeId: placeId,
+    })
+    console.log(address)
+    console.log(placeId)
+    console.groupEnd()
   }
 
   handleSubmit(event) {
@@ -43,7 +59,8 @@ class AddEventModal extends React.Component {
         const endSplitted = this.state.endTime.split(':', 2).map(x => parseInt(x, 10));
         const data = {
           id: newId,
-          title: this.state.place,
+          title: this.state.address,
+          placeId: this.state.placeId,
           start: moment(this.state.date).startOf('day').add({ hours: startSplitted[0], minutes: startSplitted[1] }).format('YYYY-MM-DD HH:mm:ss'),
           end: moment(this.state.date).startOf('day').add({ hours: endSplitted[0], minutes: endSplitted[1] }).format('YYYY-MM-DD HH:mm:ss'),
           comment: '',
@@ -80,7 +97,17 @@ class AddEventModal extends React.Component {
           <Form>
             <Form.Group controlId='form-eventPlace'>
               <Form.Label>Place Name</Form.Label>
-              <Form.Control type="text" name="place" onChange={this.handleChange} />
+              <Form.Row>
+                <Col>
+                 {/*<Form.Control type="text" name="place" onChange={this.handleChange} />*/}
+                <Autocomplete
+                  handleSelect={this.handleSelect}
+                  searchOptions={{
+                    location: new google.maps.LatLng(this.props.destinationLatLong),
+                    radius: 50000,
+                  }}/>
+                </Col>
+              </Form.Row>
             </Form.Group>
             <Form.Group controlId='form-eventDate'>
               <Form.Label>Date</Form.Label>

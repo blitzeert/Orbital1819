@@ -1,5 +1,7 @@
 import React from 'react';
 
+import TempMap from './components/TempMap'
+
 import LandingPage from './components/Landing/LandingPage';
 import PlannerPage from './components/Planner/PlannerPage';
 
@@ -49,8 +51,8 @@ class App extends React.Component {
     console.log(this.state)
     return (
       <div className="App">
-        
-        <LandingPage
+
+<LandingPage
           userData={this.props.userData}
           showLandingPage={this.state.showLandingPage}
           toggleLanding={this.toggleLanding}
@@ -70,3 +72,6 @@ class App extends React.Component {
 }
 
 export default App;
+/*
+
+*/

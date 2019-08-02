@@ -85,6 +85,16 @@ app.get('/getEvents/:code', (req, res) => {
     })
 })
 
+app.get('/getDestination/:code', (req, res) => {
+    db.get("SELECT destination FROM allEvents WHERE code = $code", { $code: req.params.code }, (err, row) => {
+        if (!err) {
+            res.send(JSON.parse(row.destination))
+        } else {
+            console.log(err);
+        }
+    })
+})
+
 app.post('/updateEvent/:code/:data', (req, res) => {
     db.run("UPDATE allEvents SET events = $events WHERE code = $code", { $events: req.params.data, $code: req.params.code }, (err) => {
         if (!err) {
@@ -114,4 +124,14 @@ app.post('/addEvent/:code/:data', (req, res) => {
     });
 });
 
+
+const GOOGLE_KEY = 'AIzaSyAzGPFfakx2b7G1xTG_wIya4nb0uktwV78'
+
+app.get('/getLatLong/:code', (req, res) => {
+    axios.get('https://maps.googleapis.com/maps/api/place/details/json?&fields=geometry&key=' + GOOGLE_KEY + '&placeid=' + req.params.code)
+        .then((response) => {
+            console.log(response.data.result.geometry.location);
+            res.send(response.data.result.geometry.location);
+        })
+})
 app.listen('5000');

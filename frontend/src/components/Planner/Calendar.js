@@ -4,6 +4,7 @@ import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import bootstrapPlugin from '@fullcalendar/bootstrap';
 import interactionPlugin from '@fullcalendar/interaction';
+import Axios from 'axios';
 
 import './FullCalendar.scss';
 
@@ -64,8 +65,22 @@ class Calendar extends React.Component {
         eventDrop={(info) => {
           this.props.handleResize(info.event)
         }}
-        drop={(date, jsEvent, ui, resourceId) => {
-          console.log('drop function');
+        drop={info => {
+          const el = info.draggedEl;
+          const data = {
+            id: el.getAttribute('placeId'),
+            title: el.getAttribute('title'),
+            start: moment(info.date).format('YYYY-MM-DD HH:mm:ss'),
+            end: moment(info.date).add({ minutes: 60 }).format('YYYY-MM-DD HH:mm:ss'),
+            comment: '',
+          }
+
+          Axios.post('http://localhost:5000/addEvent/' + this.props.calendarData.code + '/' + JSON.stringify(data))
+            .then((res) => {
+              this.props.toggleShow();
+              this.props.getEvents(this.props.calendarData.code);
+            })
+            .catch(console.log);
         }}
 
         select={(start, end, allDay) => {

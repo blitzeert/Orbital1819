@@ -10,7 +10,6 @@ import PlannerModals from './PlannerModals';
 import { classList } from '../helper';
 
 import './PlannerPage.css';
-import { Draggable } from '@fullcalendar/interaction';
 
 class PlannerPage extends React.Component {
   constructor(props) {
@@ -188,19 +187,5 @@ class PlannerPage extends React.Component {
     }
   }
 }
-
-document.addEventListener('DOMContentLoaded', function () {
-  const sidebar = document.getElementById("sidebar");
-  console.log(sidebar);
-  // new Draggable(sidebar, {
-  //   itemselector: ".sidebar-suggestion",
-  //   eventData: e => {
-  //     return {
-  //       id: e.getAttribute("placeId"),
-  //       title: e.getAttribute("title")
-  //     };
-  //   }
-  // });
-});
 
 export default PlannerPage;

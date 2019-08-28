@@ -5,28 +5,34 @@ import { Container, Row, Col } from 'react-bootstrap';
 
 import Header from './Header';
 import Sidebar from './Sidebar';
-import Calendar from './CalendarView';
+import Calendar from './Calendar';
 import PlannerModals from './PlannerModals';
 import { classList } from '../helper';
 
 import './PlannerPage.css';
+import { Draggable } from '@fullcalendar/interaction';
 
 class PlannerPage extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      events: [],
+      events: null,
+      calendarData: null,
       showAddEventModal: false,
-      showItemDescModal: false,
-      showItem: {},
+
+      eventDetail: {},
+      showEventDetailModal: false,
     }
 
-    this.toggleAddEventModal = this.toggleAddEventModal.bind(this);
-    this.handleShowItemDesc = this.handleShowItemDesc.bind(this);
-    this.toggleItemDescModal = this.toggleItemDescModal.bind(this);
+    this.getCalendarData = this.getCalendarData.bind(this);
     this.getEvents = this.getEvents.bind(this);
+
+    this.handleShowEventDetail = this.handleShowEventDetail.bind(this);
     this.handleResize = this.handleResize.bind(this);
+
+    this.toggleAddEventModal = this.toggleAddEventModal.bind(this);
+    this.toggleEventDetailModal = this.toggleEventDetailModal.bind(this);
   }
 
   toggleAddEventModal() {
@@ -35,110 +41,166 @@ class PlannerPage extends React.Component {
     });
   }
 
-  toggleItemDescModal() {
+  toggleEventDetailModal() {
     this.setState({
-      showItemDescModal: !this.state.showItemDescModal
+      showEventDetailModal: !this.state.showEventDetailModal
     });
   }
 
-  handleShowItemDesc(itemId) {
-    console.group("handle show item Desc")
-    var item = this.state.events.filter((x) => parseInt(x.id) === parseInt(itemId))
-    console.log("item", item)
-    if (item.length === 1) {
-      this.setState({showItem: item[0]}, () => {
-        this.toggleItemDescModal()
-      })
+  handleShowEventDetail(eventId) {
+    var event = this.state.events.filter(e => e.id === eventId);
+    if (event.length) {
+      this.setState({
+        showEventDetailModal: true,
+        eventDetail: event[0]
+      });
     }
-    console.groupEnd()
   }
 
-  getEvents(code) {
-    Axios.get('http://localhost:5000/getEvents/' + code).then((res) => {
-      let allEvents = [];
-      console.log(res.data)
-      for (var i in res.data) {
-        var event = res.data[i];
-        allEvents.push({
-          id: event.id,
-          title: event.title,
-          start: event.start,
-          end: event.end,
-          comment: event.comment,
-          allDay: false
-        })
+  static getDerivedStateFromProps(props, state) {
+    if (props.calendarCode !== state.prevCalendarCode) {
+      return {
+        calendarData: null,
+        events: null,
+        prevCalendarCode: props.calendarCode,
       }
-      console.log(allEvents);
-      this.setState({
-        loaded: true,
-        events: allEvents
-      });
-    }).catch((err) => {
-      if (err) {
-        console.log(err);
-      }
-    })
+    }
+
+    return null;
   }
 
   handleResize(event) {
-    console.group('resize');
     const events = this.state.events;
-    console.log("events:", events, "event:", event)
-    
-		var data = events.map(curr =>
+
+    var data = events.map(curr =>
       parseInt(curr.id) === parseInt(event.id)
-          ? Object.assign({}, curr, {
-              id: event.id,
-              title: event.title,
-              start: moment(event.start).format('YYYY-MM-DD HH:mm:ss'),
-              end: moment(event.end).format('YYYY-MM-DD HH:mm:ss'),
-            })
-          : curr
-      );
-    console.log("data:", data)
-    const finalData = {events: data}
-    Axios.post('http://localhost:5000/updateEvent/' + this.props.calendarCode + '/' + JSON.stringify(finalData))
-        .then((res) => {
-          console.log('success');
-          this.getEvents(this.props.calendarCode);
+        ? Object.assign({}, curr, {
+          id: event.id,
+          title: event.title,
+          start: moment(event.start).format('YYYY-MM-DD HH:mm:ss'),
+          end: moment(event.end).format('YYYY-MM-DD HH:mm:ss'),
         })
-        .catch((err) => {
-          if (err) {
-            console.log(err);
-          }
-        });
-    console.groupEnd()
+        : curr
+    );
+
+    const finalData = { events: data };
+    Axios.post('http://localhost:5000/updateEvent/' + this.props.calendarCode + '/' + JSON.stringify(finalData))
+      .then(response => {
+        this.getEvents(this.props.calendarCode);
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }
-  render() {
-    if (this.props.calendarCode !== '' && !this.state.loaded) {
+
+  getCalendarData(code) {
+    Axios.get('http://localhost:5000/getCalendarData/' + code)
+      .then(response => {
+        this.setState({
+          calendarData: response.data
+        });
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
+  getEvents(code) {
+    Axios.get('http://localhost:5000/getEvents/' + code)
+      .then((res) => {
+        var allEvents = [];
+        for (var i in res.data) {
+          var event = res.data[i];
+          allEvents.push({
+            id: event.id,
+            title: event.title,
+            start: event.start,
+            end: event.end,
+            comment: event.comment,
+            allDay: false
+          })
+        }
+
+        this.setState({
+          events: allEvents
+        });
+      }).catch((err) => {
+        console.log(err);
+      });
+  }
+
+  componentDidMount() {
+    if (this.state.calendarData === null) {
+      this.getCalendarData(this.props.calendarCode);
+    }
+
+    if (this.state.events === null) {
       this.getEvents(this.props.calendarCode);
     }
-    return (  
-      <div className={classList('planner', this.props.showLandingPage && 'blurred')}>
-        <Header userData={this.props.userData} toggleLanding={this.props.toggleLanding} />
-        <Container fluid>
-          <Row>
-            <Col lg={2}>
-              <Sidebar code={this.props.calendarCode} toggleAddEventModal={this.toggleAddEventModal} />
-            </Col>
-            <Col lg={10}>
-              <Calendar events={this.state.events} code={this.props.calendarCode} handleResize={this.handleResize} handleShowItemDesc={this.handleShowItemDesc} />
-            </Col>
-          </Row>
-        </Container>
-        <PlannerModals
-          code={this.props.calendarCode}
-          showAddEventModal={this.state.showAddEventModal}
-          toggleAddEventModal={this.toggleAddEventModal}
-          getEvents={this.getEvents}
+  }
 
-          showItemDescModal={this.state.showItemDescModal}
-          toggleItemDescModal={this.toggleItemDescModal}
-          item={this.state.showItem}
-        />
-      </div>
-    )
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.calendarData === null) {
+      this.getCalendarData(this.props.calendarCode);
+    }
+
+    if (this.state.events === null) {
+      this.getEvents(this.props.calendarCode);
+    }
+  }
+
+  render() {
+    if (this.state.calendarData === null || this.state.events === null) {
+      return (
+        <h4>Loading...</h4>
+      );
+    } else {
+      return (
+        <div className={classList('planner', this.props.showLandingPage && 'blurred')}>
+          <Header userData={this.props.userData} setUserData={this.props.setUserData} toggleLanding={this.props.toggleLanding} />
+          <Container fluid>
+            <Row>
+              <Col lg={2}>
+                <Sidebar calendarData={this.state.calendarData} toggleAddEventModal={this.toggleAddEventModal} />
+              </Col>
+              <Col lg={10}>
+                <Calendar
+                  calendarData={this.state.calendarData}
+                  events={this.state.events}
+                  handleResize={this.handleResize}
+                  handleShowEventDetail={this.handleShowEventDetail}
+                />
+              </Col>
+            </Row>
+          </Container>
+          <PlannerModals
+            calendarData={this.state.calendarData}
+            showAddEventModal={this.state.showAddEventModal}
+            toggleAddEventModal={this.toggleAddEventModal}
+            getEvents={this.getEvents}
+
+            showEventDetailModal={this.state.showEventDetailModal}
+            toggleEventDetailModal={this.toggleEventDetailModal}
+            eventDetail={this.state.eventDetail}
+          />
+        </div>
+      );
+    }
   }
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+  const sidebar = document.getElementById("sidebar");
+  console.log(sidebar);
+  // new Draggable(sidebar, {
+  //   itemselector: ".sidebar-suggestion",
+  //   eventData: e => {
+  //     return {
+  //       id: e.getAttribute("placeId"),
+  //       title: e.getAttribute("title")
+  //     };
+  //   }
+  // });
+});
 
 export default PlannerPage;

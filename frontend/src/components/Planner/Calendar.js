@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import bootstrapPlugin from '@fullcalendar/bootstrap';
@@ -8,11 +9,15 @@ import './FullCalendar.scss';
 
 class Calendar extends React.Component {
   render() {
+    const calendarData = this.props.calendarData;
+    const isCalendarDataEmpty = JSON.stringify(calendarData) === '{}';
+
     return (
       <FullCalendar
-        defaultView='timeGridWeek'
         plugins={[timeGridPlugin, bootstrapPlugin, interactionPlugin]}
         themeSystem='bootstrap'
+
+        defaultView='timeGridWeek'
         allDaySlot={false}
         nowIndicator={true}
         slotLabelFormat={{
@@ -23,22 +28,40 @@ class Calendar extends React.Component {
           hour12: false,
         }}
         height={600}
-        editable={true}
+        validRange={nowDate => {
+          var startDate = moment(nowDate).format('YYYY-MM-DD');
+          var endDate = moment(nowDate).add(1, 'months').format('YYYY-MM-DD');
+
+          if (!isCalendarDataEmpty) {
+            startDate = calendarData.start_date;
+            endDate = calendarData.end_date;
+          }
+
+          return {
+            start: startDate,
+            end: endDate
+          }
+        }}
+
+        // Events and event interactions
         events={this.props.events}
+        eventClick={info => {
+          this.props.handleShowEventDetail(info.event.id);
+        }}
 
+        editable={true}
         eventDragStart={(info) => {
-          //console.log("Dragging start   function", info)
-        }}
 
+        }}
         eventDragStop={(info) => {
-          //console.log("Draggin end function", info)
-        }}
 
-        eventDrop={(info) => {
+        }}
+        eventResize={(info) => {
           this.props.handleResize(info.event)
         }}
 
-        eventResize={(info) => {
+        droppable={true}
+        eventDrop={(info) => {
           this.props.handleResize(info.event)
         }}
         drop={(date, jsEvent, ui, resourceId) => {
@@ -48,14 +71,6 @@ class Calendar extends React.Component {
         select={(start, end, allDay) => {
           console.log('select function');
         }}
-
-      eventClick={(calEvent, jsEvent, view) => {
-        console.group('click');
-        console.log('calEvent');
-        console.dir(calEvent);
-        console.groupEnd();
-        this.props.handleShowItemDesc(calEvent.event.id)
-    }}
       />
     );
   }

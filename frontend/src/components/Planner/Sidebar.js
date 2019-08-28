@@ -1,13 +1,62 @@
 import React from 'react';
 import { Row, Col, Button } from 'react-bootstrap';
-
-// import Suggestions from './Suggestions';
+import Axios from 'axios';
 
 class Sidebar extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      suggestions: [],
+      suggestionsLoaded: false
+    };
+
+    this.getSuggestions = this.getSuggestions.bind(this);
+  }
+
+  getSuggestions() {
+    if (JSON.stringify(this.props.calendarData) !== '{}') {
+      console.log(this.props.calendarData);
+      Axios.get('http://localhost:5000/getSuggestions/' + this.props.calendarData.lat_lng)
+        .then(response => {
+          this.setState({
+            suggestions: response.data,
+            suggestionsLoaded: true
+          });
+        })
+        .catch(err => {
+          console.log(err);
+          this.setState({
+            suggestionsLoaded: false
+          });
+        });
+    }
+  }
+
+  componentWillMount() {
+    this.getSuggestions();
+  }
+
   render() {
+    const createSuggestionButton = suggestion => (
+      <Col key={suggestion.id} className="my-2 text-center sidebar-suggestion">
+        <Button variant="outline-primary" className="btn-block" title={suggestion.name} placeid={suggestion.id}>{suggestion.name}</Button>
+      </Col>
+    );
+
+    const noSuggestions = (
+      <Col className="my-2 text-center">
+        <p>No suggestions yet...</p>
+        <Button variant="outline-primary" onClick={this.getSuggestions}>Get Suggestions</Button>
+      </Col>
+    );
+
     return (
-      <Row className="side-nav flex-column align-items-center">
-        <Col className="mb-2 text-center">
+      <Row className="side-nav flex-column align-items-center" id="sidebar">
+        <Col className="my-2 text-center">
+          <h4>{this.props.calendarData.name}</h4>
+        </Col>
+        <Col className="my-2 text-center">
           <Button variant="outline-primary" onClick={this.props.toggleAddEventModal}>Add new event</Button>
         </Col>
         <Col>
@@ -16,18 +65,14 @@ class Sidebar extends React.Component {
         <Col className="text-center">
           <h6>Suggestions for you</h6>
         </Col>
-        <Col className="my-2 text-center">
-          <Button variant="outline-primary">No suggestions yet</Button>
-        </Col>
-        <Col className="my-2 text-center">
-          <Button variant="outline-primary">No suggestions yet</Button>
-        </Col>
-        <Col className="my-2 text-center">
-          <Button variant="outline-primary">No suggestions yet</Button>
-        </Col>
-        <Col className="my-2 text-center">
-          <Button variant="outline-primary">No suggestions yet</Button>
-        </Col>
+
+        {
+          this.state.suggestionsLoaded
+            ? this.state.suggestions.length
+              ? this.state.suggestions.map(createSuggestionButton)
+              : noSuggestions
+            : noSuggestions
+        }
       </Row>
     );
   }

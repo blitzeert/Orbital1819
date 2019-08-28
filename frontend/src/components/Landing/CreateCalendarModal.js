@@ -1,9 +1,11 @@
 import React from 'react';
-import moment from 'moment';
 import Axios from 'axios';
 import { Modal, Form, Col, Button } from 'react-bootstrap';
 import { DateRangePicker } from 'react-dates';
+import PlacesInput from '../Places/PlacesInput';
+import { geocodeByPlaceId, getLatLng } from 'react-places-autocomplete';
 
+import './CreateCalendarModal.css';
 class CreateCalendarModal extends React.Component {
   constructor(props) {
     super(props);
@@ -11,6 +13,7 @@ class CreateCalendarModal extends React.Component {
     this.state = {
       calendarName: '',
       destination: '',
+      latLong: '',
       startDate: null,
       endDate: null,
 
@@ -28,16 +31,30 @@ class CreateCalendarModal extends React.Component {
     });
   }
 
+  handlePlaceChange = (address, placeId) => {
+    if (placeId) {
+      geocodeByPlaceId(placeId)
+        .then(res => getLatLng(res[0]))
+        .then(latlng => {
+          this.setState({
+            destination: address,
+            latLong: latlng.lat + ',' + latlng.lng
+          })
+        })
+        .catch(console.log);
+    }
+  }
+
   handleSubmit(event) {
     const data = {
-      userId: this.props.userData.id,
       calendarName: this.state.calendarName,
       destination: this.state.destination,
-      startDate: moment(this.state.startDate).startOf("day").unix(),
-      endDate: moment(this.state.endDate).endOf("day").unix(),
+      latLong: this.state.latLong,
+      startDate: this.state.startDate.format('YYYY-MM-DD'),
+      endDate: this.state.endDate.format('YYYY-MM-DD'),
     }
-    console.log(data)
-    Axios.post('http://localhost:5000/addCalendar', data)
+
+    Axios.post('http://localhost:5000/addCalendar/' + this.props.userData.id, data)
       .then((res) => {
         this.props.toggleShow();
         this.props.loadCalendar(res.data.calendarCode);
@@ -79,7 +96,11 @@ class CreateCalendarModal extends React.Component {
             </Form.Group>
             <Form.Group>
               <Form.Label>Destination</Form.Label>
-              <Form.Control type="text" name="destination" placeholder="Bali" onChange={this.handleChange} />
+              <PlacesInput
+                value={this.state.destination}
+                onChange={destination => this.setState({ destination })}
+                onSelect={this.handlePlaceChange}
+              />
             </Form.Group>
           </Form>
         </Modal.Body>
